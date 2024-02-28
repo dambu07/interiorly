@@ -40,6 +40,12 @@ export default function SignIn() {
           Sign Up
         </Link>
       </span>
+      <div className="absolute bottom-3 text-sm text-muted-foreground">
+        By continuing, you agree to Interiorly&apos;s{" "}
+        <Link href={"/terms"}>Terms of Service</Link> and{" "}
+        <Link href={"/privacy-policy"}>Privacy Policy</Link>, and to receive
+        periodic emails with updates.
+      </div>
     </div>
   );
 }

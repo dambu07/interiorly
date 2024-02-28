@@ -8,7 +8,7 @@ if (!DATABASE_URL) {
   console.log("🔴 No database URL");
 }
 
-const client = postgres(DATABASE_URL as string);
+const client = postgres(DATABASE_URL as string, { max: 3, prepare: false });
 const db = drizzle(client, { schema });
 
 export default db;

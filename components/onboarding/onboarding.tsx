@@ -1,23 +1,25 @@
 "use client";
 
-import { AuthUser } from "@supabase/supabase-js";
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm } from "react-hook-form";
-import { CreateWorkspaceSchema } from "@/lib/validations/workspace";
-import { set, typeToFlattenedError, z } from "zod";
-import EmojiPicker from "@/components/emoji-picker";
 import { User } from "@/lib/supabase/supabase.types";
 import { OnboardingStep } from "@/components/onboarding/onboarding-step";
 import type { OnboardingStep as OnboardinStepType } from "@/types";
 import { Button } from "../ui/button";
+import { ModeToggle } from "../mode-toggle";
+import { Input } from "../ui/input";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
+import { OnboardingSchema } from "@/lib/validations/onboarding";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "../ui/label";
+import { z } from "zod";
 
 interface OnboardingProps {
   user: User;
@@ -27,12 +29,84 @@ interface OnboardingProps {
 export default function Onboarding({ user, subscription }: OnboardingProps) {
   const [currentPage, setCurrentPage] = useState<number>(0);
 
+  const form = useForm<z.infer<typeof OnboardingSchema>>({
+    resolver: zodResolver(OnboardingSchema),
+    defaultValues: {},
+  });
+
   const onboardingSteps: OnboardinStepType[] = [
     {
-      title: "Create a workspace",
-      description: "Create a workspace to get started",
-      component: <div>Component 1</div>,
-      onSubmit: () => setCurrentPage(currentPage + 1),
+      title: "Welcome! First things first...",
+      description:
+        "Personalize your experience. You can always change your appearance later.",
+      component: (
+        <div className="w-3/4 flex flex-col">
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem className="my-5">
+                <FormControl>
+                  <div className="flex flex-col space-y-3">
+                    <Label htmlFor="displayName">Full Name</Label>
+                    <Input
+                      placeholder="John Doe"
+                      className="w-full"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Your name will not be visible to others in workspaces.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="displayName"
+            render={({ field }) => (
+              <FormItem className="my-5">
+                <FormControl>
+                  <div className="flex flex-col space-y-3">
+                    <Label htmlFor="displayName">Display Name</Label>
+                    <Input placeholder="John" className="w-full" {...field} />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Your display name is how you will appear to others in
+                  workspaces.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      ),
+      submitButtonText: "Create Profile",
+      onSubmit: async () => {
+        const displayNameValid = await form.trigger("displayName");
+        const fullNameValid = await form.trigger("fullName");
+
+        if (displayNameValid && fullNameValid) {
+          return setCurrentPage(currentPage + 1);
+        }
+
+        if (!displayNameValid) {
+          form.setError("fullName", {
+            type: "manual",
+            message: "Invalid Full Name",
+          });
+        }
+
+        if (!displayNameValid) {
+          form.setError("displayName", {
+            type: "manual",
+            message: "Invalid Display Name",
+          });
+        }
+      },
     },
     {
       title: "Invite your team",
@@ -56,18 +130,32 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
 
   const currentStep = onboardingSteps[currentPage];
 
+  async function onSubmit(data: z.infer<typeof OnboardingSchema>) {
+    console.log(data);
+  }
   return (
-    <div className="border border-blue-500 w-full h-full">
+    <div className=" w-full h-full">
       <div>
-        <OnboardingStep
-          title={currentStep.title}
-          description={currentStep.description}
-          component={currentStep.component}
-          stepNumber={currentPage}
-          stepCount={onboardingSteps.length}
-          user={user}
-          onSubmit={currentStep.onSubmit}
-        />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex-col space-y-8 align-middle"
+          >
+            <OnboardingStep
+              title={currentStep.title}
+              description={currentStep.description}
+              component={currentStep.component}
+              stepNumber={currentPage}
+              stepCount={onboardingSteps.length}
+              user={user}
+              submitButtonText={currentStep.submitButtonText}
+              onSubmit={currentStep.onSubmit}
+              setCurrentPage={setCurrentPage}
+            />
+          </form>
+        </Form>
+
+        <ModeToggle />
       </div>
     </div>
   );

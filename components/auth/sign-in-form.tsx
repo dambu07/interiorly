@@ -121,7 +121,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
   function isOAuthLink(
     response: AuthResponse | OAuthResponse
   ): response is OAuthResponse {
-    if (!response.data) return false;
+    if (!response || !response.data) return false;
     return (response as OAuthResponse).data.url !== undefined;
   }
 
@@ -173,7 +173,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex-col align-middle space-y-5"
+          className="flex-col align-middle border"
         >
           <FormField
             control={form.control}

@@ -26,7 +26,9 @@ interface OnboardingStepProps {
   title: string;
   description: string;
   component: React.ReactNode;
+  submitButtonText?: string;
   onSubmit: () => void;
+  setCurrentPage: (page: number) => void;
 }
 
 export function OnboardingStep({
@@ -36,60 +38,78 @@ export function OnboardingStep({
   title,
   description,
   component,
+  submitButtonText,
   onSubmit,
+  setCurrentPage,
 }: OnboardingStepProps) {
   const [progress, setProgress] = useState(0);
+  const [highestProgress, setHighestProgress] = useState(0);
 
   useEffect(() => {
     const p = Math.floor((stepNumber / (stepCount - 1)) * 100);
-
-    setProgress(p + 0.5 * p);
-  }, [stepNumber, stepCount]);
+    setHighestProgress(
+      stepNumber > highestProgress ? stepNumber : highestProgress
+    );
+    setProgress(p);
+  }, [stepNumber, stepCount, highestProgress]);
 
   return (
-    <div className="flex flex-col space-y-10 rounded-md w-full container max-w-2xl my-20 border">
-      <div className="text-2xl font-semibold text-center">Interiorly AI</div>
-      <div className="relative w-full mx-auto border">
+    <div className="flex flex-col space-y-16 rounded-md w-full container max-w-2xl my-20">
+      <div className="text-2xl font-bold text-center text-secondary-foreground">
+        Interiorly AI
+      </div>
+      <div className="relative mx-auto w-3/4">
         <Progress
           value={progress}
           fill="bg-primary"
-          className="absolute left-0 top-4 h-0.5 w-full bg-secondary"
+          className="absolute left-0 top-5 h-[1.25px] w-full bg-secondary"
         />
         <ul className="relative flex w-full justify-between">
           {[...Array(stepCount)].map((_, index) => (
             <li className="text-left" key={index}>
               <div>
-                <div
-                  className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-white",
-                    index <= stepNumber ? "bg-primary" : "bg-secondary"
-                  )}
-                >
-                  {index + 1}
-                </div>
+                {index < stepNumber ? (
+                  <Button
+                    className={cn(
+                      "flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-xs font-semibold ",
+                      index <= stepNumber
+                        ? "bg-primary text-primary-foreground hover:bg-primary"
+                        : "bg-secondary"
+                    )}
+                    onClick={() => setCurrentPage(index)}
+                  >
+                    {index + 1}
+                  </Button>
+                ) : (
+                  <div
+                    className={cn(
+                      "flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-xs font-semibold ",
+                      index <= stepNumber
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
+                    )}
+                  >
+                    {index + 1}
+                  </div>
+                )}
               </div>
             </li>
           ))}
         </ul>
       </div>
-      <div className="flex flex-col text-center">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <p
-          className="text-muted-foreground
-        "
-        >
-          {description}
-        </p>
-      </div>
-      <div className="flex flex-col items-center justify-center space-y-5">
-        {component}
-        <Button
-          onClick={onSubmit}
-          variant={"default"}
-          className="w-full max-w-xs"
-        >
-          Next
-        </Button>
+      <div className="flex flex-col space-y-5">
+        <div className="flex flex-col text-center">
+          <h2 className="text-4xl font-bold text-secondary-foreground">
+            {title}
+          </h2>
+          <p className="text-muted-foreground text-lg">{description}</p>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-10">
+          {component}
+          <Button onClick={onSubmit} variant={"default"} className="w-3/4">
+            {submitButtonText || "Continue"}
+          </Button>
+        </div>
       </div>
     </div>
   );

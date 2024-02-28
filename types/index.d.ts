@@ -35,5 +35,6 @@ export type OnboardingStep = {
   title: string;
   description: string;
   component: React.ReactNode;
+  submitButtonText?: string;
   onSubmit: () => void;
 };
