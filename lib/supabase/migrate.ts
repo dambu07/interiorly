@@ -10,4 +10,4 @@ const migrateDb = async () => {
     console.log("🔴 Error Migrating client", error);
   }
 };
-migrateDb();
+migrateDb().finally(() => process.exit(0));
