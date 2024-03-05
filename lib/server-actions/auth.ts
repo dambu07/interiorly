@@ -120,7 +120,6 @@ export async function actionLoginUser({
 export async function actionRegisterUser({
   email,
   password,
-  displayName,
 }: z.infer<typeof UserRegisterSchema>) {
   const supabase = createRouteHandlerClient({ cookies });
   const user = await findUserByEmail(email);
@@ -139,10 +138,6 @@ export async function actionRegisterUser({
       emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/sign-in`,
     },
   });
-
-  if (response.data.user?.id) {
-    updateDisplayName(response.data.user.id, displayName);
-  }
 
   return {
     data: response.data,
