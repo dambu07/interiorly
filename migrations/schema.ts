@@ -109,6 +109,7 @@ export const prices = pgTable("prices", {
   trialPeriodDays: integer("trial_period_days"),
   metadata: jsonb("metadata"),
 });
+
 export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
   userId: uuid("user_id").notNull(),
@@ -153,7 +154,6 @@ export const subscriptions = pgTable("subscriptions", {
     mode: "string",
   }).default(sql`now()`),
 });
-
 export const collaborators = pgTable("collaborators", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   workspaceId: uuid("workspace_id")
