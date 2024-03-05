@@ -32,9 +32,10 @@ export type SettingsConfig = {
 };
 
 export type OnboardingStep = {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   component: React.ReactNode;
   submitButtonText?: string;
-  onSubmit: () => void;
+  skipable?: boolean;
+  onSubmit?: (data?: z.infer<typeof OnboardingSchema>) => void;
 };
