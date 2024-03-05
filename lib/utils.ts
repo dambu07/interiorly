@@ -1,4 +1,3 @@
-import { route_synonyms } from "@/routes";
 import { PasswordStrengthEvaluationResult } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -67,4 +66,32 @@ export function getStrengthIndicator(strengthPercentage: number) {
   } else {
     return { color: "bg-red-500", message: "Very Weak" };
   }
+}
+
+export function getRandomLogoBackground() {
+  const colors = [
+    "bg-primary",
+    "bg-emerald",
+    "bg-yellow",
+    "bg-red",
+    "bg-blue",
+    "bg-indigo",
+    "bg-purple",
+    "bg-pink",
+  ];
+
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+export function getRandomBannerGradientBackground() {
+  const gradients = [
+    "bg-gradient-to-r from-primary to-emerald",
+    "bg-gradient-to-r from-yellow to-red",
+    "bg-gradient-to-r from-blue to-indigo",
+    "bg-gradient-to-r from-purple to-pink",
+    "bg-gradient-to-r from-pink to-primary",
+    "bg-gradient-to-r from-red to-yellow",
+  ];
+
+  return gradients[Math.floor(Math.random() * gradients.length)];
 }
