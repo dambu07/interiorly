@@ -133,6 +133,9 @@ export function OnboardingStep({
                     }
                   : () => {
                       console.log(form.getValues());
+                      console.log(form.formState.errors);
+                      const banner = form.getValues("workspaceBanner");
+
                       if (
                         form.formState.errors &&
                         Object.keys(form.formState.errors).length > 0

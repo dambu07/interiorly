@@ -4,20 +4,21 @@ import React, { useState } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { User } from "@/lib/supabase/supabase.types";
 import { OnboardingStep } from "@/components/onboarding/onboarding-step";
-import type { OnboardingStep as OnboardinStepType } from "@/types";
-import { Form } from "../ui/form";
+import type {
+  OnboardingStep as OnboardinStepType,
+  WorkspaceCollaboration,
+} from "@/types";
+import { Form } from "@/components/ui/form";
 import { OnboardingSchema } from "@/lib/validations/onboarding";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import OnboardingStepCollaboration from "./steps/collaboration";
-import OnboardingStepFinish from "./steps/finish";
-import OnboardingStepAvatar from "./steps/avatar";
-import OnboardingStepAccount from "./steps/account";
-import OnboardingStepProfile from "./steps/avatar";
-import OnboardingStepWorkspaceSetup from "./steps/workspace-setup";
-import { actionUpdateProfile } from "@/lib/server-actions/settings";
+import { set, z } from "zod";
+import OnboardingStepCollaboration from "@/components/onboarding/steps/collaboration";
+import OnboardingStepFinish from "@/components/onboarding/steps/finish";
+import OnboardingStepAccount from "@/components/onboarding/steps/account";
+import OnboardingStepProfile from "@/components/onboarding/steps/avatar";
+import OnboardingStepWorkspaceSetup from "@/components/onboarding/steps/workspace-setup";
 import { actionCompleteOnboarding } from "@/lib/server-actions/onboarding";
-import { ModeToggle } from "../mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 
 interface OnboardingProps {
   user: User;
@@ -26,9 +27,8 @@ interface OnboardingProps {
 
 export default function Onboarding({ user, subscription }: OnboardingProps) {
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [collaborationType, setCollaborationType] = useState<
-    "individual" | "team"
-  >("individual");
+  const [collaborationType, setCollaborationType] =
+    useState<WorkspaceCollaboration>("individual");
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof OnboardingSchema>>({
@@ -63,6 +63,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
       onSubmit: () =>
         validateFormFields(form, "fullName", "displayName").then((isValid) => {
           const displayName = form.getValues("displayName");
+          form.setValue("workspaceType", "individual");
           form.setValue("workspaceName", `${displayName}'s Workspace`);
           form.setValue(
             "workspaceDescription",
@@ -107,7 +108,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
       title: "Set up your workspace",
       description: `Create your first workspace ${
         collaborationType === "team" ? "and invite your team" : ""
-      } to get started.\nYou can always create another workspace later.`,
+      } to get started.`,
       component: (
         <OnboardingStepWorkspaceSetup
           collaborationType={collaborationType}
@@ -115,6 +116,10 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
           form={form}
         />
       ),
+      onSubmit: () =>
+        validateFormFields(form, "workspaceName", "workspaceDescription").then(
+          (valid) => valid && setCurrentPage(currentPage + 1)
+        ),
     },
     {
       component: (

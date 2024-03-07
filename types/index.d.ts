@@ -39,3 +39,12 @@ export type OnboardingStep = {
   skipable?: boolean;
   onSubmit?: (data?: z.infer<typeof OnboardingSchema>) => void;
 };
+
+export type WorkspaceCollaboration = "individual" | "organization" | "team";
+
+export type OnboardingWorkspaceCollaboration = {
+  collaborationType: WorkspaceCollaboration;
+  icon: keyof typeof Icons;
+  title: string;
+  description: string;
+};

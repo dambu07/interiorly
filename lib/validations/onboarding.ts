@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 5000000;
+const MAX_FILE_SIZE = 5242880;
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -21,12 +21,13 @@ export const OnboardingSchema = z.object({
     .any()
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max image size is ${MAX_FILE_SIZE / 1000000}MB.`
+      `Max image size is 5MB.`
     )
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
+    )
+    .optional(),
   workspaceName: z
     .string()
     .min(3, { message: "Workspace name must be at least 3 characters" }),
@@ -38,22 +39,24 @@ export const OnboardingSchema = z.object({
     .any()
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max image size is ${MAX_FILE_SIZE / 1000000}MB.`
+      `Max image size is 5MB.`
     )
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
+    )
+    .optional(),
   workspaceBanner: z
     .any()
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
-      `Max image size is ${MAX_FILE_SIZE / 1000000}MB.`
+      `Max image size is 5MB.`
     )
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png and .webp formats are supported."
-    ),
+    )
+    .optional(),
   workspaceBannerColor: z.string().optional(),
   workspaceType: z.union([
     z.literal("individual"),
