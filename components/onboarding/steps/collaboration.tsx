@@ -41,9 +41,7 @@ function OnboardingStepCollaboration({
         onClick={() => handleCollaborationTypeChange("individual")}
       >
         <IconUser className="w-8 h-8" />
-        <div className="text-xl font-bold text-secondary-foreground">
-          For Myself
-        </div>
+        <div className="text-xl font-bold">For Myself</div>
         <span className="text-muted-foreground">
           Write better. Think more clearly. Stay organized.
         </span>
@@ -56,9 +54,7 @@ function OnboardingStepCollaboration({
         onClick={() => handleCollaborationTypeChange("team")}
       >
         <IconUsers className="w-8 h-8" />
-        <div className="text-xl font-bold text-secondary-foreground">
-          With my team
-        </div>
+        <div className="text-xl font-bold">With my team</div>
         <span className="text-muted-foreground">
           Stay in sync with your team and collaborate in real-time
         </span>

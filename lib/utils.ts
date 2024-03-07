@@ -95,3 +95,19 @@ export function getRandomBannerGradientBackground() {
 
   return gradients[Math.floor(Math.random() * gradients.length)];
 }
+
+export function getBase64(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (!reader.result) return reject("Failed to read file");
+      let encoded = reader.result.toString().replace(/^data:(.*,)?/, "");
+      if (encoded.length % 4 > 0) {
+        encoded += "=".repeat(4 - (encoded.length % 4));
+      }
+      resolve(encoded as string);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+}

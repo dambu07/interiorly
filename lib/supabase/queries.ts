@@ -13,6 +13,8 @@ import {
 import { and, eq, ilike, notExists } from "drizzle-orm";
 import { collaborators } from "@/lib/supabase/schema";
 import { createClient } from "@supabase/supabase-js";
+import { OnboardingSchema } from "../validations/onboarding";
+import { z } from "zod";
 
 export const createWorkspace = async (workspace: workspace) => {
   try {
@@ -21,6 +23,25 @@ export const createWorkspace = async (workspace: workspace) => {
   } catch (error: any) {
     return { data: null, error: error.message || "Error" };
   }
+};
+
+export const completeOnboarding = async (
+  userId: string,
+  onboardingData: z.infer<typeof OnboardingSchema>
+) => {
+  // try {
+  //   await db
+  //     .update(users)
+  //     .set({
+  //       displayName: onboardingData.displayName,
+  //       fullName: onboardingData.fullName,
+  //       avatarUrl: onboardingData.,
+  //     })
+  //     .where({ id: userId });
+  //   return { data: null, error: null };
+  // } catch (error: any) {
+  //   return { data: null, error: error.message || "Error" };
+  // }
 };
 
 export const deleteWorkspace = async (workspaceId: string) => {

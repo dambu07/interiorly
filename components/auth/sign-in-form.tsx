@@ -231,7 +231,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
       <Button className="w-full p-0" variant="none" disabled={isLoading}>
         <MagicLinkDialog onSubmit={onMagicLinkSubmit}>
           <div className="w-full">
-            <Tooltip>
+            <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
                 <div
                   className={cn(

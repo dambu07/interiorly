@@ -18,8 +18,6 @@ function OnboardingStepProfile({
   displayName,
   email,
 }: OnboardingStepProfileProps) {
-  const [length, setLength] = useState(0);
-
   return (
     <div className="w-full">
       <div className="flex flex-col items-center justify-center hover:cursor-pointer">
@@ -40,12 +38,15 @@ function OnboardingStepProfile({
                   className="flex flex-col items-center justify-center w-full h-full rounded-lg cursor-pointer bg-background hover:bg-background/50"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <IconUser className="h-6 w-6 text-zinc-500 mb-2" />
-                    <p className="mb-2 text-sm text-zinc-700">
-                      <span className="font-semibold">Click to upload</span> or
+                    <IconUser className="h-6 w-6 text-muted-foreground mb-2" />
+                    <p className="mb-2 text-sm text-secondary-foreground font-bold">
+                      <span className="font-medium">Click to upload</span> or
                       drag and drop
                     </p>
-                    <p className="text-xs text-zinc-500">PLACEHOLDER</p>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Upload a PNG, JPG or GIF under 10MB.
+                      <br /> Images should be at least 128x128.
+                    </p>
                   </div>
 
                   <input

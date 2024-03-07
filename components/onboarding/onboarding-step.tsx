@@ -121,16 +121,29 @@ export function OnboardingStep({
             <Button
               onClick={
                 stepNumber < stepCount - 1
-                  ? onSubmit || (() => setCurrentPage(stepNumber + 1))
+                  ? () => {
+                      console.log(form.getValues());
+                      console.log(form.formState.errors);
+
+                      if (onSubmit) {
+                        onSubmit();
+                      } else {
+                        setCurrentPage(stepNumber + 1);
+                      }
+                    }
                   : () => {
+                      console.log(form.getValues());
                       if (
                         form.formState.errors &&
                         Object.keys(form.formState.errors).length > 0
                       ) {
                         return toast("An error occurred", {
-                          description: "Please try again later.",
+                          description: Object.values(form.formState.errors)
+                            .map((e) => e.message)
+                            .join("\n"),
                         });
                       }
+
                       form.handleSubmit(onComplete);
                     }
               }

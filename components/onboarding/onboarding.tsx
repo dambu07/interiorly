@@ -11,12 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import OnboardingStepCollaboration from "./steps/collaboration";
 import OnboardingStepFinish from "./steps/finish";
-import OnboardingStepAvatar from "./steps/profile";
+import OnboardingStepAvatar from "./steps/avatar";
 import OnboardingStepAccount from "./steps/account";
-import OnboardingStepProfile from "./steps/profile";
+import OnboardingStepProfile from "./steps/avatar";
 import OnboardingStepWorkspaceSetup from "./steps/workspace-setup";
 import { actionUpdateProfile } from "@/lib/server-actions/settings";
 import { actionCompleteOnboarding } from "@/lib/server-actions/onboarding";
+import { ModeToggle } from "../mode-toggle";
 
 interface OnboardingProps {
   user: User;
@@ -37,6 +38,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
 
   const onboardingComplete = async (data: z.infer<typeof OnboardingSchema>) => {
     setIsLoading(true);
+    console.log(data);
     await actionCompleteOnboarding(data);
     setIsLoading(false);
   };
@@ -59,9 +61,21 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
       component: <OnboardingStepAccount form={form} />,
       submitButtonText: "Create Profile",
       onSubmit: () =>
-        validateFormFields(form, "fullName", "displayName").then(
-          (isValid) => isValid && setCurrentPage(currentPage + 1)
-        ),
+        validateFormFields(form, "fullName", "displayName").then((isValid) => {
+          const displayName = form.getValues("displayName");
+          form.setValue("workspaceName", `${displayName}'s Workspace`);
+          form.setValue(
+            "workspaceDescription",
+            `Welcome to ${
+              displayName.includes(" ")
+                ? displayName.split(" ")[0]
+                : displayName
+            }'s Workspace 🚀`
+          );
+          if (isValid) {
+            setCurrentPage(currentPage + 1);
+          }
+        }),
     },
     {
       title: "Create an Avatar",
@@ -138,7 +152,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
           />
         </form>
       </Form>
-      {/* <ModeToggle /> */}
+      <ModeToggle />
     </div>
   );
 }
