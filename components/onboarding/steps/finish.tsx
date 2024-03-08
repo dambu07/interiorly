@@ -1,15 +1,17 @@
 import { IconCheck, IconSpinner } from "@/components/icons";
+import { OnboardingSchema } from "@/lib/validations/onboarding";
 import React from "react";
+import { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 
 interface OnboardingStepFinishProps {
-  displayName: string;
-  isLoading: boolean;
+  form: UseFormReturn<z.infer<typeof OnboardingSchema>>;
 }
 
-function OnboardingStepFinish({
-  displayName,
-  isLoading,
-}: OnboardingStepFinishProps) {
+function OnboardingStepFinish({ form }: OnboardingStepFinishProps) {
+  const isLoading = form.formState.isSubmitting;
+  const { displayName } = form.watch();
+
   return (
     <div className="w-3/4 flex flex-col justify-center items-center text-center">
       {isLoading ? (

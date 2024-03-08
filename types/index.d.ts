@@ -36,6 +36,7 @@ export type OnboardingStep = {
   description?: string;
   component: React.ReactNode;
   submitButtonText?: string;
+  submitButtonDisabled?: boolean;
   skipable?: boolean;
   onSubmit?: (data?: z.infer<typeof OnboardingSchema>) => void;
 };

@@ -34,13 +34,12 @@ const collaborationOptions: OnboardingWorkspaceCollaboration[] = [
 
 function OnboardingStepCollaboration({
   form,
-  collaborationType,
-  setCollaborationType,
 }: OnboardingStepCollaborationProps) {
   const handleCollaborationTypeChange = (type: WorkspaceCollaboration) => {
-    setCollaborationType(type);
     form.setValue("workspaceType", type);
   };
+
+  const { workspaceType } = form.watch();
 
   return (
     <div className="flex space-x-5">
@@ -52,7 +51,7 @@ function OnboardingStepCollaboration({
               key={index}
               className={cn(
                 "container flex flex-col h-full py-10 space-y-1 hover:cursor-pointer",
-                ct === collaborationType && "border-primary text-primary"
+                ct === workspaceType && "border-primary text-primary"
               )}
               onClick={() => handleCollaborationTypeChange(ct)}
             >

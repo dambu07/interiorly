@@ -22,8 +22,8 @@ interface OnboardingStepProps {
   onSubmit?: () => void;
   onComplete: (data: z.infer<typeof OnboardingSchema>) => void;
   setCurrentPage: (page: number) => void;
-  isLoading: boolean;
-  skipable?: boolean;
+  skippable?: boolean;
+  submitButtonDisabled?: boolean;
 }
 
 export function OnboardingStep({
@@ -37,19 +37,10 @@ export function OnboardingStep({
   onSubmit,
   onComplete,
   setCurrentPage,
-  isLoading,
-  skipable,
+  skippable,
+  submitButtonDisabled,
 }: OnboardingStepProps) {
-  const [progress, setProgress] = useState(0);
-  const [highestProgress, setHighestProgress] = useState(0);
-
-  useEffect(() => {
-    const p = Math.floor((stepNumber / (stepCount - 1)) * 100);
-    setHighestProgress(
-      stepNumber > highestProgress ? stepNumber : highestProgress
-    );
-    setProgress(p);
-  }, [stepNumber, stepCount, highestProgress]);
+  const isLoading = form.formState.isSubmitting;
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -59,7 +50,7 @@ export function OnboardingStep({
         </div>
         <div className="relative mx-auto mt-16 mb-10 w-3/4">
           <Progress
-            value={progress}
+            value={(stepNumber / (stepCount - 1)) * 100}
             fill="bg-primary"
             className="absolute left-0 top-5 h-[1.25px] w-full bg-secondary"
           />
@@ -121,21 +112,10 @@ export function OnboardingStep({
             <Button
               onClick={
                 stepNumber < stepCount - 1
-                  ? () => {
-                      console.log(form.getValues());
-                      console.log(form.formState.errors);
-
-                      if (onSubmit) {
-                        onSubmit();
-                      } else {
-                        setCurrentPage(stepNumber + 1);
-                      }
-                    }
+                  ? onSubmit
+                    ? onSubmit
+                    : () => setCurrentPage(stepNumber + 1)
                   : () => {
-                      console.log(form.getValues());
-                      console.log(form.formState.errors);
-                      const banner = form.getValues("workspaceBanner");
-
                       if (
                         form.formState.errors &&
                         Object.keys(form.formState.errors).length > 0
@@ -152,7 +132,7 @@ export function OnboardingStep({
               }
               variant={"default"}
               className="w-3/4"
-              disabled={isLoading}
+              disabled={isLoading || submitButtonDisabled}
             >
               {isLoading && (
                 <IconSpinner className="w-5 h-5 mr-2 animate-spin" />
@@ -171,10 +151,10 @@ export function OnboardingStep({
                   <IconChevronLeft /> Go Back
                 </span>
               )}
-              {stepNumber < stepCount - 1 && !isLoading && skipable && (
+              {stepNumber < stepCount - 1 && !isLoading && skippable && (
                 <Separator orientation="vertical" className="h-1/2 my-auto" />
               )}
-              {skipable && !isLoading && (
+              {skippable && !isLoading && (
                 <span
                   className={cn(
                     buttonVariants({ variant: "link" }),

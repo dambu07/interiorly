@@ -27,20 +27,17 @@ interface OnboardingProps {
 
 export default function Onboarding({ user, subscription }: OnboardingProps) {
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [collaborationType, setCollaborationType] =
-    useState<WorkspaceCollaboration>("individual");
-  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof OnboardingSchema>>({
     resolver: zodResolver(OnboardingSchema),
     defaultValues: {},
   });
 
+  const { workspaceType, avatar } = form.watch();
+
   const onboardingComplete = async (data: z.infer<typeof OnboardingSchema>) => {
-    setIsLoading(true);
     console.log(data);
     await actionCompleteOnboarding(data);
-    setIsLoading(false);
   };
 
   const validateFormFields = async (
@@ -79,55 +76,32 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
         }),
     },
     {
-      title: "Create an Avatar",
+      title: "Upload an Avatar",
       description:
         "Choose an avatar that represents you. You can always change it later.",
-      component: (
-        <OnboardingStepProfile
-          form={form}
-          displayName={form.getValues("displayName")}
-          email={user.email as string}
-          createdAt={user.updatedAt as string}
-        />
-      ),
+      component: <OnboardingStepProfile form={form} />,
       submitButtonText: "Upload Avatar",
+      submitButtonDisabled: !avatar,
       skipable: true,
     },
     {
       title: "How are you planning to use Interiorly?",
       description: "We'll streamline your setup experience accordingly. ",
-      component: (
-        <OnboardingStepCollaboration
-          form={form}
-          collaborationType={collaborationType}
-          setCollaborationType={setCollaborationType}
-        />
-      ),
+      component: <OnboardingStepCollaboration form={form} />,
     },
     {
       title: "Set up your workspace",
       description: `Create your first workspace ${
-        collaborationType === "team" ? "and invite your team" : ""
+        workspaceType === "team" ? "and invite your team" : ""
       } to get started.`,
-      component: (
-        <OnboardingStepWorkspaceSetup
-          collaborationType={collaborationType}
-          displayName={form.getValues("displayName")}
-          form={form}
-        />
-      ),
+      component: <OnboardingStepWorkspaceSetup form={form} />,
       onSubmit: () =>
         validateFormFields(form, "workspaceName", "workspaceDescription").then(
           (valid) => valid && setCurrentPage(currentPage + 1)
         ),
     },
     {
-      component: (
-        <OnboardingStepFinish
-          displayName={form.getValues("displayName")}
-          isLoading={isLoading}
-        />
-      ),
+      component: <OnboardingStepFinish form={form} />,
       submitButtonText: "Go to Dashboard",
     },
   ];
@@ -149,10 +123,10 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
             stepNumber={currentPage}
             stepCount={onboardingSteps.length}
             submitButtonText={currentStep.submitButtonText}
+            submitButtonDisabled={currentStep.submitButtonDisabled}
             onSubmit={currentStep.onSubmit}
             setCurrentPage={setCurrentPage}
-            isLoading={isLoading}
-            skipable={currentStep.skipable}
+            skippable={currentStep.skipable}
             onComplete={onboardingComplete}
           />
         </form>
