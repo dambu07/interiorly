@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { User } from "@/lib/supabase/supabase.types";
 import { OnboardingStep } from "@/components/onboarding/onboarding-step";
@@ -19,6 +19,7 @@ import OnboardingStepProfile from "@/components/onboarding/steps/avatar";
 import OnboardingStepWorkspaceSetup from "@/components/onboarding/steps/workspace-setup";
 import { actionCompleteOnboarding } from "@/lib/server-actions/onboarding";
 import { ModeToggle } from "@/components/mode-toggle";
+import { IconCheck, IconClose } from "../icons";
 
 interface OnboardingProps {
   user: User;
@@ -27,6 +28,7 @@ interface OnboardingProps {
 
 export default function Onboarding({ user, subscription }: OnboardingProps) {
   const [currentPage, setCurrentPage] = useState<number>(0);
+  const textboxRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<z.infer<typeof OnboardingSchema>>({
     resolver: zodResolver(OnboardingSchema),
@@ -65,9 +67,11 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
           form.setValue(
             "workspaceDescription",
             `Welcome to ${
-              displayName.includes(" ")
-                ? displayName.split(" ")[0]
-                : displayName
+              displayName
+                ? displayName.includes(" ")
+                  ? displayName.split(" ")[0]
+                  : displayName
+                : "Someone"
             }'s Workspace 🚀`
           );
           if (isValid) {

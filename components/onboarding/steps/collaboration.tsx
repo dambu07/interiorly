@@ -13,8 +13,6 @@ import * as Icons from "@/components/icons";
 
 interface OnboardingStepCollaborationProps {
   form: UseFormReturn<z.infer<typeof OnboardingSchema>>;
-  collaborationType: WorkspaceCollaboration;
-  setCollaborationType: (type: WorkspaceCollaboration) => void;
 }
 
 const collaborationOptions: OnboardingWorkspaceCollaboration[] = [

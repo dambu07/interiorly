@@ -126,7 +126,7 @@ function OnboardingStepWorkspaceSetup({
                   <div className="group">
                     {workspaceLogo ? (
                       <>
-                        <ColorThief
+                        {/* <ColorThief
                           src={URL.createObjectURL(workspaceLogo)}
                           format="hex"
                         >
@@ -138,7 +138,7 @@ function OnboardingStepWorkspaceSetup({
                             );
                             return null;
                           }}
-                        </ColorThief>
+                        </ColorThief> */}
                         <Image
                           src={URL.createObjectURL(
                             new Blob([workspaceLogo], {

@@ -45,9 +45,9 @@ export function OnboardingStep({
   return (
     <div className="flex flex-col w-full h-full">
       <div className="h-1/3 flex flex-col justify-end">
-        <div className="text-2xl font-bold text-center text-secondary-foreground">
+        {/* <div className="text-2xl font-bold text-center text-secondary-foreground">
           Interiorly AI
-        </div>
+        </div> */}
         <div className="relative mx-auto mt-16 mb-10 w-3/4">
           <Progress
             value={(stepNumber / (stepCount - 1)) * 100}
@@ -116,6 +116,8 @@ export function OnboardingStep({
                     ? onSubmit
                     : () => setCurrentPage(stepNumber + 1)
                   : () => {
+                      console.log(form.formState.errors);
+
                       if (
                         form.formState.errors &&
                         Object.keys(form.formState.errors).length > 0
@@ -131,7 +133,7 @@ export function OnboardingStep({
                     }
               }
               variant={"default"}
-              className="w-3/4"
+              className="w-3/4 text-primary-foreground"
               disabled={isLoading || submitButtonDisabled}
             >
               {isLoading && (

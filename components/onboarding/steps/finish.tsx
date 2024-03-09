@@ -35,8 +35,13 @@ function OnboardingStepFinish({ form }: OnboardingStepFinishProps) {
           <h2 className="text-4xl font-bold text-secondary-foreground mt-10">
             Congratulations, {displayName}!
           </h2>
-          <span className="text-muted-foreground text-lg">
-            You are all set, you can start using Interiorly AI now.
+          <span className="text-muted-foreground text-lg my-3">
+            You&apos;ve completed Signing-Up. You are all set and ready to go!
+            <br />
+            Press the button below to get started with{" "}
+            <span className="font-semibold text-secondary-foreground">
+              Interiorly AI
+            </span>
           </span>
         </>
       )}
