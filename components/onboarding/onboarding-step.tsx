@@ -132,6 +132,7 @@ export function OnboardingStep({
                       form.handleSubmit(onComplete);
                     }
               }
+              type="button"
               variant={"default"}
               className="w-3/4 text-primary-foreground"
               disabled={isLoading || submitButtonDisabled}

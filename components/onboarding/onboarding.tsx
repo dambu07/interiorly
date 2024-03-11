@@ -38,8 +38,11 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
   const { workspaceType, avatar } = form.watch();
 
   const onboardingComplete = async (data: z.infer<typeof OnboardingSchema>) => {
-    console.log(data);
-    await actionCompleteOnboarding(data);
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    await actionCompleteOnboarding(formData);
   };
 
   const validateFormFields = async (

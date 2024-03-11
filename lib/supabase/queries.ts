@@ -16,6 +16,8 @@ import { createClient } from "@supabase/supabase-js";
 import { OnboardingSchema } from "../validations/onboarding";
 import { z } from "zod";
 
+type OnboardingSchemaType = z.infer<typeof OnboardingSchema>;
+
 export const createWorkspace = async (workspace: workspace) => {
   try {
     const response = await db.insert(workspaces).values(workspace);
@@ -27,21 +29,25 @@ export const createWorkspace = async (workspace: workspace) => {
 
 export const completeOnboarding = async (
   userId: string,
-  onboardingData: z.infer<typeof OnboardingSchema>
+  {
+    displayName,
+    fullName,
+  }: Pick<OnboardingSchemaType, "displayName" | "fullName">,
+  avatarUrl?: string
 ) => {
-  // try {
-  //   await db
-  //     .update(users)
-  //     .set({
-  //       displayName: onboardingData.displayName,
-  //       fullName: onboardingData.fullName,
-  //       avatarUrl: onboardingData.,
-  //     })
-  //     .where({ id: userId });
-  //   return { data: null, error: null };
-  // } catch (error: any) {
-  //   return { data: null, error: error.message || "Error" };
-  // }
+  try {
+    await db
+      .update(users)
+      .set({
+        displayName,
+        fullName,
+        avatarUrl: avatarUrl || null,
+      })
+      .where({ id: userId });
+    return { data: null, error: null };
+  } catch (error: any) {
+    return { data: null, error: error.message || "Error" };
+  }
 };
 
 export const deleteWorkspace = async (workspaceId: string) => {
