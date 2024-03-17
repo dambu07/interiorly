@@ -4,8 +4,8 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { OnboardingSchema } from "../validations/onboarding";
 import { completeOnboarding, createWorkspace } from "../supabase/queries";
-import { v4 } from "uuid";
 import { workspace } from "../supabase/supabase.types";
+import { v4 } from "uuid";
 
 export async function actionCompleteOnboarding(formData: FormData) {
   const supabase = createRouteHandlerClient({ cookies });
@@ -14,57 +14,62 @@ export async function actionCompleteOnboarding(formData: FormData) {
 
   const data = Object.fromEntries(formData.entries());
   const validatedData = OnboardingSchema.parse(data);
-  const {
-    avatar,
-    workspaceLogo,
-    workspaceBanner,
-    workspaceName,
-    workspaceDescription,
-  } = validatedData;
-
-  console.log(validatedData);
-
-  if (avatar) {
-    await supabase.storage.from("avatars").upload(user.id, avatar, {
-      upsert: true,
-    });
-  }
+  const { avatar, workspaceLogo, workspaceBanner, workspaceName } =
+    validatedData;
 
   let workspaceLogoPath = null;
   let workspaceBannerPath = null;
 
   if (workspaceLogo) {
-    const fileUUID = v4();
     try {
+      const fileUUID = v4();
       const { data, error } = await supabase.storage
         .from("workspace-logos")
-        .upload(`workspaceLogo_${fileUUID}`, workspaceLogo, { upsert: true });
+        .upload(`workspace-logo_${fileUUID}`, workspaceLogo, { upsert: true });
 
       if (error) throw new Error(error.message);
-      workspaceLogoPath = data.path;
+
+      const workspaceLogoURL = supabase.storage
+        .from("workspace-logos")
+        .getPublicUrl(data.path).data.publicUrl;
+      workspaceLogoPath = workspaceLogoURL;
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
+  console.log("checkpoint 1");
+
   if (workspaceBanner) {
-    const fileUUID = v4();
     try {
+      const fileUUID = v4();
       const { data, error } = await supabase.storage
-        .from("workspace-banner")
-        .upload(`workspaceBanner_${fileUUID}`, workspaceBanner, {
+        .from("workspace-banners")
+        .upload(`workspace-banner_${fileUUID}`, workspaceBanner, {
           upsert: true,
         });
 
       if (error) throw new Error(error.message);
-      workspaceBannerPath = data.path;
+
+      const workspaceBannerURL = supabase.storage
+        .from("workspace-banners")
+        .getPublicUrl(data.path).data.publicUrl;
+      workspaceBannerPath = workspaceBannerURL;
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
+  console.log("checkpoint 2");
+
   try {
     const workspaceUUID = v4();
+    console.log(
+      workspaceUUID,
+      workspaceName,
+      workspaceLogoPath,
+      workspaceBannerPath
+    );
     const workspace: workspace = {
       data: null,
       createdAt: new Date().toISOString(),
@@ -72,40 +77,43 @@ export async function actionCompleteOnboarding(formData: FormData) {
       id: workspaceUUID,
       inTrash: "",
       title: workspaceName,
-      logoUrl: workspaceLogo ? workspaceLogoPath : null,
-      bannerUrl: workspaceBanner ? workspaceBannerPath : null,
+      logoUrl: workspaceLogoPath,
+      bannerUrl: workspaceBannerPath,
       workspaceOwner: user.id,
     };
 
-    const { data, error } = await createWorkspace(workspace);
-    if (error) throw new Error(error.message);
+    const { data: workspaceData, error: workspaceError } =
+      await createWorkspace(workspace);
+
+    if (workspaceError) throw new Error(workspaceError);
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 
   let avatarPath;
 
   if (avatar) {
-    try {
-      const { data, error } = await supabase.storage
-        .from("avatars")
-        .upload(`avatar_${user.id}`, avatar, { upsert: true });
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .upload(`avatar_${user.id}`, avatar, { upsert: true });
 
-      if (error) throw new Error(error.message);
-      avatarPath = data.path;
-    } catch (error) {
-      console.error(error);
-    }
+    if (error) throw new Error(error.message);
+    console.log(data);
+
+    const avatarPathURL = supabase.storage
+      .from("avatars")
+      .getPublicUrl(data.path).data.publicUrl;
+    avatarPath = avatarPathURL;
   }
 
   try {
-    const { error } = await completeOnboarding(
+    const { error: onboardingError } = await completeOnboarding(
       user.id,
-      validatedData,
-      avatarPath
+      validatedData
+      // avatarPath
     );
-    if (error) throw new Error(error.message);
+    if (onboardingError) throw new Error(onboardingError.message);
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 }

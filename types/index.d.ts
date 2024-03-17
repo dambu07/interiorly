@@ -49,3 +49,11 @@ export type OnboardingWorkspaceCollaboration = {
   title: string;
   description: string;
 };
+
+export type NextApiResponseServerIo = NextApiResponse & {
+  socket: Socket & {
+    server: NetServer & {
+      io: SocketIOServer;
+    };
+  };
+};

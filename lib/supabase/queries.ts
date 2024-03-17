@@ -1,6 +1,5 @@
 "use server";
 
-import { validate } from "uuid";
 import { files, folders, users, workspaces } from "@/migrations/schema";
 import db from "@/lib/supabase/db";
 import {
@@ -10,7 +9,7 @@ import {
   User,
   workspace,
 } from "@/lib/supabase/supabase.types";
-import { and, eq, ilike, notExists } from "drizzle-orm";
+import { and, eq, ilike, lt, notExists } from "drizzle-orm";
 import { collaborators } from "@/lib/supabase/schema";
 import { createClient } from "@supabase/supabase-js";
 import { OnboardingSchema } from "../validations/onboarding";
@@ -20,7 +19,9 @@ type OnboardingSchemaType = z.infer<typeof OnboardingSchema>;
 
 export const createWorkspace = async (workspace: workspace) => {
   try {
-    const response = await db.insert(workspaces).values(workspace);
+    const res = await db.insert(workspaces).values(workspace);
+    console.log("insert res", res);
+
     return { data: null, error: null };
   } catch (error: any) {
     return { data: null, error: error.message || "Error" };
@@ -35,7 +36,9 @@ export const completeOnboarding = async (
   }: Pick<OnboardingSchemaType, "displayName" | "fullName">,
   avatarUrl?: string
 ) => {
+  console.log(userId, displayName, fullName, avatarUrl);
   try {
+    if (!userId) return { data: null, error: "No user Id provided" };
     await db
       .update(users)
       .set({
@@ -43,7 +46,7 @@ export const completeOnboarding = async (
         fullName,
         avatarUrl: avatarUrl || null,
       })
-      .where({ id: userId });
+      .where(eq(users.id, userId));
     return { data: null, error: null };
   } catch (error: any) {
     return { data: null, error: error.message || "Error" };
@@ -90,13 +93,6 @@ export const getUserSubscriptionStatus = async (userId: string) => {
 };
 
 export const getFolders = async (workspaceId: string) => {
-  const isValid = validate(workspaceId);
-  if (!isValid)
-    return {
-      data: null,
-      error: "Error",
-    };
-
   try {
     const results: Folder[] | [] = await db
       .select()
@@ -110,13 +106,6 @@ export const getFolders = async (workspaceId: string) => {
 };
 
 export const getWorkspaceDetails = async (workspaceId: string) => {
-  const isValid = validate(workspaceId);
-  if (!isValid)
-    return {
-      data: [],
-      error: "Error",
-    };
-
   try {
     const response = (await db
       .select()
@@ -131,11 +120,6 @@ export const getWorkspaceDetails = async (workspaceId: string) => {
 };
 
 export const getFileDetails = async (fileId: string) => {
-  const isValid = validate(fileId);
-  if (!isValid) {
-    data: [];
-    error: "Error";
-  }
   try {
     const response = (await db
       .select()
@@ -160,12 +144,6 @@ export const deleteFolder = async (folderId: string) => {
 };
 
 export const getFolderDetails = async (folderId: string) => {
-  const isValid = validate(folderId);
-  if (!isValid) {
-    data: [];
-    error: "Error";
-  }
-
   try {
     const response = (await db
       .select()
@@ -251,8 +229,6 @@ export const getSharedWorkspaces = async (userId: string) => {
 };
 
 export const getFiles = async (folderId: string) => {
-  const isValid = validate(folderId);
-  if (!isValid) return { data: null, error: "Error" };
   try {
     const results = (await db
       .select()

@@ -41,6 +41,8 @@ export function OnboardingStep({
   submitButtonDisabled,
 }: OnboardingStepProps) {
   const isLoading = form.formState.isSubmitting;
+  const isSubmitted = form.formState.isSubmitted;
+  const isSubmittedSuccessfully = form.formState.isSubmitSuccessful;
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -112,35 +114,27 @@ export function OnboardingStep({
             <Button
               onClick={
                 stepNumber < stepCount - 1
-                  ? onSubmit
-                    ? onSubmit
-                    : () => setCurrentPage(stepNumber + 1)
-                  : () => {
-                      console.log(form.formState.errors);
-
-                      if (
-                        form.formState.errors &&
-                        Object.keys(form.formState.errors).length > 0
-                      ) {
-                        return toast("An error occurred", {
-                          description: Object.values(form.formState.errors)
-                            .map((e) => e.message)
-                            .join("\n"),
-                        });
-                      }
-
-                      form.handleSubmit(onComplete);
-                    }
+                  ? onSubmit || (() => setCurrentPage(stepNumber + 1))
+                  : () => null
               }
-              type="button"
+              type={stepNumber < stepCount - 1 ? "button" : "submit"}
               variant={"default"}
               className="w-3/4 text-primary-foreground"
-              disabled={isLoading || submitButtonDisabled}
+              disabled={
+                // isLoading ||
+                // (isSubmitted && isSubmittedSuccessfully) ||
+                // submitButtonDisabled
+                false
+              }
             >
               {isLoading && (
                 <IconSpinner className="w-5 h-5 mr-2 animate-spin" />
               )}
-              {submitButtonText || "Continue"}
+              {isSubmitted
+                ? isSubmittedSuccessfully
+                  ? "Go to Dashboard"
+                  : "Try Again"
+                : submitButtonText || "Continue"}
             </Button>
             <div className="flex  w-full items-center justify-center">
               {stepNumber > 0 && !isLoading && (

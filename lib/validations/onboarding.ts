@@ -8,7 +8,7 @@ export const OnboardingSchema = z.object({
     .string()
     .min(1, { message: "Your first name is required" })
     .max(100, { message: "Your name cannot exceed 100 characters" }),
-  avatar: z.any(),
+  avatar: z.any().optional(),
   workspaceName: z
     .string()
     .min(3, { message: "Workspace name must be at least 3 characters" }),
@@ -16,8 +16,8 @@ export const OnboardingSchema = z.object({
   workspaceDescription: z.string().min(0).max(100, {
     message: "Workspace description cannot exceed 100 characters",
   }),
-  workspaceLogo: z.any(),
-  workspaceBanner: z.any(),
+  workspaceLogo: z.any().optional(),
+  workspaceBanner: z.any().optional(),
   workspaceBannerColor: z.string().optional(),
   workspaceType: z.union([
     z.literal("individual"),

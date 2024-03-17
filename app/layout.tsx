@@ -3,8 +3,8 @@ import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Providers } from "@/components/providers";
+import { Analytics } from "@vercel/analytics/react";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -38,6 +38,7 @@ export default function RootLayout({
           {children}
         </Providers>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );

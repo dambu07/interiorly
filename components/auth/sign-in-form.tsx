@@ -110,7 +110,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
 
   async function onOAuthSubmit(provider: "github" | "google" | "discord") {
     setIsLoading(true);
-    const callbackUrl = searchParamsRef.current.get("callbackUrl");
+    const callbackUrl = searchParamsRef.current?.get("callbackUrl");
     const response = await actionLoginUserOAuth({
       provider,
       callbackUrl: callbackUrl ?? DEFAULT_LOGIN_REDIRECT,
@@ -173,7 +173,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex-col align-middle border"
+          className="flex-col align-middle space-y-5"
         >
           <FormField
             control={form.control}

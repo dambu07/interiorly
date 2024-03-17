@@ -135,7 +135,7 @@ export async function actionRegisterUser({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/sign-in`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`,
     },
   });
 

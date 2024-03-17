@@ -1,4 +1,4 @@
-import { IconCheck, IconSpinner } from "@/components/icons";
+import { IconCheck, IconClose, IconSpinner } from "@/components/icons";
 import { OnboardingSchema } from "@/lib/validations/onboarding";
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
@@ -10,6 +10,7 @@ interface OnboardingStepFinishProps {
 
 function OnboardingStepFinish({ form }: OnboardingStepFinishProps) {
   const isLoading = form.formState.isSubmitting;
+  const isSubmittedSuccessfully = form.formState.isSubmitSuccessful;
   const { displayName } = form.watch();
 
   return (
@@ -27,7 +28,7 @@ function OnboardingStepFinish({ form }: OnboardingStepFinishProps) {
             few seconds.
           </span>
         </>
-      ) : (
+      ) : isSubmittedSuccessfully ? (
         <>
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <IconCheck className="w-8 h-8 text-primary-foreground" />
@@ -42,6 +43,18 @@ function OnboardingStepFinish({ form }: OnboardingStepFinishProps) {
             <span className="font-semibold text-secondary-foreground">
               Interiorly AI
             </span>
+          </span>
+        </>
+      ) : (
+        <>
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
+            <IconClose className="w-8 h-8 text-primary-foreground" />
+          </div>
+          <h2 className="text-3xl font-bold text-secondary-foreground mt-10">
+            Oops! Something went wrong
+          </h2>
+          <span className="text-muted-foreground text-lg my-3">
+            We ran into an issue while setting up your account.
           </span>
         </>
       )}

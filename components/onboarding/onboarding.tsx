@@ -4,14 +4,11 @@ import React, { useRef, useState } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { User } from "@/lib/supabase/supabase.types";
 import { OnboardingStep } from "@/components/onboarding/onboarding-step";
-import type {
-  OnboardingStep as OnboardinStepType,
-  WorkspaceCollaboration,
-} from "@/types";
+import type { OnboardingStep as OnboardinStepType } from "@/types";
 import { Form } from "@/components/ui/form";
 import { OnboardingSchema } from "@/lib/validations/onboarding";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, z } from "zod";
+import { z } from "zod";
 import OnboardingStepCollaboration from "@/components/onboarding/steps/collaboration";
 import OnboardingStepFinish from "@/components/onboarding/steps/finish";
 import OnboardingStepAccount from "@/components/onboarding/steps/account";
@@ -19,7 +16,6 @@ import OnboardingStepProfile from "@/components/onboarding/steps/avatar";
 import OnboardingStepWorkspaceSetup from "@/components/onboarding/steps/workspace-setup";
 import { actionCompleteOnboarding } from "@/lib/server-actions/onboarding";
 import { ModeToggle } from "@/components/mode-toggle";
-import { IconCheck, IconClose } from "../icons";
 
 interface OnboardingProps {
   user: User;
@@ -38,11 +34,16 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
   const { workspaceType, avatar } = form.watch();
 
   const onboardingComplete = async (data: z.infer<typeof OnboardingSchema>) => {
+    console.log(data);
+
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
-    await actionCompleteOnboarding(formData);
+    console.log(formData);
+
+    const response = await actionCompleteOnboarding(formData);
+    console.log(response);
   };
 
   const validateFormFields = async (
@@ -102,10 +103,6 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
         workspaceType === "team" ? "and invite your team" : ""
       } to get started.`,
       component: <OnboardingStepWorkspaceSetup form={form} />,
-      onSubmit: () =>
-        validateFormFields(form, "workspaceName", "workspaceDescription").then(
-          (valid) => valid && setCurrentPage(currentPage + 1)
-        ),
     },
     {
       component: <OnboardingStepFinish form={form} />,
@@ -119,8 +116,8 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
     <div className="w-full h-full flex items-center justify-center max-w-3xl container">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onboardingComplete)}
           className="relative w-full h-full"
+          onSubmit={form.handleSubmit(onboardingComplete)}
         >
           <OnboardingStep
             form={form}

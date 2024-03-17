@@ -1,17 +1,10 @@
 import React from "react";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { buttonVariants } from "@/components/ui/button";
 import { findUser, getUserSubscriptionStatus } from "@/lib/supabase/queries";
-import LogoutButton from "@/components/logoutButton";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { notFound, redirect } from "next/navigation";
-import Image from "next/image";
 import db from "@/lib/supabase/db";
-import WorkspaceOnboarding from "@/components/onboarding/workspace";
-import { ModeToggle } from "@/components/mode-toggle";
 import Onboarding from "@/components/onboarding/onboarding";
+import { notFound, redirect } from "next/navigation";
 
 async function DashboardPage() {
   const supabase = createServerComponentClient({ cookies });
@@ -28,6 +21,8 @@ async function DashboardPage() {
   const workspace = await db.query.workspaces.findFirst({
     where: (workspace, { eq }) => eq(workspace.workspaceOwner, authUser.id),
   });
+
+  console.log(workspace, workspace?.workspaceOwner, authUser.id);
 
   const { data: subscription, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
