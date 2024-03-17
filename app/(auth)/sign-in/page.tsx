@@ -3,6 +3,7 @@ import { IconChevronLeft, IconHTL } from "@/components/icons";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function SignIn() {
   return (
@@ -29,7 +30,9 @@ export default function SignIn() {
             Enter your email to sign in to your account
           </p>
         </div>
-        <SignInForm />
+        <Suspense>
+          <SignInForm />
+        </Suspense>
       </div>{" "}
       <span className="text-sm text-muted-foreground py-3">
         Don&apos;t have an account yet?{" "}
