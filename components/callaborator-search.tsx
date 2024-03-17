@@ -102,7 +102,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
               >
                 <div className="flex gap-4 items-center">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.avatarUrl} />
+                    <AvatarImage src={user.avatarUrl ?? ""} />
                     <AvatarFallback>
                       {user.displayName ? (
                         getInitials(user.displayName)

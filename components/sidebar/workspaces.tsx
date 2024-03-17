@@ -68,7 +68,7 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
       {workspaces.map((workspace) => (
         <Link key={workspace.id} href={`/dashboard/${workspace.id}`}>
           <Avatar className="w-16 h-16 p-3 cursor-pointer rounded-full">
-            <AvatarImage src={workspace.logoUrl} alt={workspace.title} />
+            <AvatarImage src={workspace.logoUrl ?? ""} alt={workspace.title} />
             <AvatarFallback className="bg-background">
               {getInitials(workspace.title)}
             </AvatarFallback>

@@ -62,6 +62,7 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
   const code_expired_message = "Email link is invalid or has expired";
 
   useEffect(() => {
+    if (!searchParamsRef.current) return;
     const { code, error_description, provider, callbackUrl, error } =
       Object.fromEntries(searchParamsRef.current.entries());
 
@@ -155,7 +156,10 @@ export function SignInForm({ className, ...props }: AuthFormProps) {
       toast("Signed In Successfully", {
         description: "You are now Signed in.",
       });
-      const callbackUrl = searchParamsRef.current.get("callbackUrl");
+
+      let callbackUrl;
+      if (searchParamsRef.current)
+        callbackUrl = searchParamsRef.current.get("callbackUrl");
       router.current.replace(callbackUrl || DEFAULT_LOGIN_REDIRECT);
     }
   };

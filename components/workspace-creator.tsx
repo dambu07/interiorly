@@ -182,7 +182,7 @@ const WorkspaceCreator = () => {
                   >
                     <div className="flex gap-4 items-center">
                       <Avatar>
-                        <AvatarImage src={c.avatarUrl} />
+                        <AvatarImage src={c.avatarUrl ?? ""} />
                         <AvatarFallback>
                           {c.displayName ? (
                             getInitials(c.displayName)
