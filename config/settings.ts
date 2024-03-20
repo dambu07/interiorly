@@ -9,8 +9,13 @@ export const settingsConfig: SettingsConfig = {
     },
     {
       title: "Profile",
-      href: "/settings/profile",
+      href: "/dashboard/settings",
       icon: "IconUser",
+    },
+    {
+      title: "Billing",
+      href: "/dashboard/settings/billing",
+      icon: "IconCheck",
     },
   ],
 };

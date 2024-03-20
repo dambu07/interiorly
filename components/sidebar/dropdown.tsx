@@ -21,7 +21,7 @@ import { toast } from "sonner";
 interface DropdownProps {
   title: string;
   id: string;
-  listType: "folder" | "file";
+  listType: "folder";
   iconId: string;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -36,107 +36,21 @@ const Dropdown: React.FC<DropdownProps> = ({
   disabled,
   ...props
 }) => {
-  const supabase = createClientComponentClient();
+  const { workspaceId, state, dispatch } = useAppState();
   const { user } = useSupabaseUser();
-  const { state, dispatch, workspaceId, folderId } = useAppState();
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
 
-  //folder Title synced with server data and local
-  const folderTitle: string | undefined = useMemo(() => {
-    if (listType === "folder") {
-      const stateTitle = state.workspaces
-        .find((workspace) => workspace.id === workspaceId)
-        ?.folders.find((folder) => folder.id === id)?.title;
-      if (title === stateTitle || !stateTitle) return title;
-      return stateTitle;
-    }
-  }, [state, listType, workspaceId, id, title]);
+  const navigatatePage = (targetId: string) => {
+    console.log(id);
 
-  //fileItitle
-
-  const fileTitle: string | undefined = useMemo(() => {
-    if (listType === "file") {
-      const fileAndFolderId = id.split("folder");
-      const stateTitle = state.workspaces
-        .find((workspace) => workspace.id === workspaceId)
-        ?.folders.find((folder) => folder.id === fileAndFolderId[0])
-        ?.files.find((file) => file.id === fileAndFolderId[1])?.title;
-      if (title === stateTitle || !stateTitle) return title;
-      return stateTitle;
-    }
-  }, [state, listType, workspaceId, id, title]);
-
-  //Navigate the user to a different page
-  const navigatatePage = (accordionId: string, type: string) => {
-    if (type === "folder") {
-      router.push(`/dashboard/${workspaceId}/${accordionId}`);
-    }
-    if (type === "file") {
-      router.push(
-        `/dashboard/${workspaceId}/${folderId}/${
-          accordionId.split("folder")[1]
-        }`
-      );
-    }
+    router.push(`/dashboard/${workspaceId}/${id}/${targetId}`);
   };
 
-  //double click handler
   const handleDoubleClick = () => {
     setIsEditing(true);
   };
-  //blur
 
-  const handleBlur = async () => {
-    if (!isEditing) return;
-    setIsEditing(false);
-    const fId = id.split("folder");
-    if (fId?.length === 1) {
-      if (!folderTitle) return;
-      toast("Success", {
-        description: "Folder title changed.",
-      });
-      await updateFolder({ title }, fId[0]);
-    }
-
-    if (fId.length === 2 && fId[1]) {
-      if (!fileTitle) return;
-      const { data, error } = await updateFile({ title: fileTitle }, fId[1]);
-      if (error) {
-        toast("Error", {
-          description: "Could not update the title for this file",
-        });
-      } else
-        toast("Success", {
-          description: "File title changed.",
-        });
-    }
-  };
-
-  //onchanges
-  const onChangeEmoji = async (selectedEmoji: string) => {
-    if (!workspaceId) return;
-    if (listType === "folder") {
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          workspaceId,
-          folderId: id,
-          folder: { iconId: selectedEmoji },
-        },
-      });
-      const { data, error } = await updateFolder({ iconId: selectedEmoji }, id);
-      if (error) {
-        toast("Error", {
-          description: "Could not update the emoji for this folder",
-        });
-      } else {
-        toast("Success", {
-          description: "Update emoji for the folder",
-        });
-      }
-    }
-  };
   const folderTitleChange = (e: any) => {
     if (!workspaceId) return;
     const fid = id.split("folder");
@@ -151,15 +65,16 @@ const Dropdown: React.FC<DropdownProps> = ({
       });
     }
   };
+
   const fileTitleChange = (e: any) => {
-    if (!workspaceId || !folderId) return;
+    if (!workspaceId) return;
     const fid = id.split("folder");
     if (fid.length === 2 && fid[1]) {
       dispatch({
         type: "UPDATE_FILE",
         payload: {
           file: { title: e.target.value },
-          folderId,
+          folderId: id,
           workspaceId,
           fileId: fid[1],
         },
@@ -167,89 +82,56 @@ const Dropdown: React.FC<DropdownProps> = ({
     }
   };
 
-  //move to trash
-  const moveToTrash = async () => {
+  const moveFolderToTrash = async (folderId: string) => {
     if (!user?.email || !workspaceId) return;
-    const pathId = id.split("folder");
-    if (listType === "folder") {
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          folder: { inTrash: `Deleted by ${user?.email}` },
-          folderId: pathId[0],
-          workspaceId,
-        },
+    dispatch({
+      type: "UPDATE_FOLDER",
+      payload: {
+        folder: { inTrash: `Deleted by ${user?.email}` },
+        folderId,
+        workspaceId,
+      },
+    });
+    const { data, error } = await updateFolder(
+      { inTrash: `Deleted by ${user?.email}` },
+      folderId
+    );
+    if (error) {
+      toast("Error", {
+        description: "Could not move the folder to trash",
       });
-      const { data, error } = await updateFolder(
-        { inTrash: `Deleted by ${user?.email}` },
-        pathId[0]
-      );
-      if (error) {
-        toast("Error", {
-          description: "Could not move the folder to trash",
-        });
-      } else {
-        toast("Success", {
-          description: "Moved folder to trash",
-        });
-      }
-    }
-
-    if (listType === "file") {
-      dispatch({
-        type: "UPDATE_FILE",
-        payload: {
-          file: { inTrash: `Deleted by ${user?.email}` },
-          folderId: pathId[0],
-          workspaceId,
-          fileId: pathId[1],
-        },
+    } else {
+      toast("Success", {
+        description: "Moved folder to trash",
       });
-      const { data, error } = await updateFile(
-        { inTrash: `Deleted by ${user?.email}` },
-        pathId[1]
-      );
-      if (error) {
-        toast("Error", {
-          description: "Could not move the folder to trash",
-        });
-      } else {
-        toast("Success", {
-          description: "Moved folder to trash",
-        });
-      }
     }
   };
 
-  const isFolder = listType === "folder";
-  const groupIdentifies = clsx(
-    "dark:text-white whitespace-nowrap flex justify-between items-center w-full relative",
-    {
-      "group/folder": isFolder,
-      "group/file": !isFolder,
+  const moveFileToTrash = async (fileId: string) => {
+    if (!user?.email || !workspaceId) return;
+    dispatch({
+      type: "UPDATE_FILE",
+      payload: {
+        file: { inTrash: `Deleted by ${user?.email}` },
+        folderId: id,
+        workspaceId,
+        fileId,
+      },
+    });
+    const { data, error } = await updateFile(
+      { inTrash: `Deleted by ${user?.email}` },
+      fileId
+    );
+    if (error) {
+      toast("Error", {
+        description: "Could not move the folder to trash",
+      });
+    } else {
+      toast("Success", {
+        description: "Moved folder to trash",
+      });
     }
-  );
-
-  const listStyles = useMemo(
-    () =>
-      clsx("relative", {
-        "border-none text-md": isFolder,
-        "border-none ml-6 text-[16px] py-1": !isFolder,
-      }),
-    [isFolder]
-  );
-
-  const hoverStyles = useMemo(
-    () =>
-      clsx(
-        "h-full hidden rounded-sm absolute right-0 items-center justify-center",
-        {
-          "group-hover/file:block": listType === "file",
-          "group-hover/folder:block": listType === "folder",
-        }
-      ),
-    [isFolder]
-  );
+  };
 
   const addNewFile = async () => {
     if (!workspaceId) return;
@@ -280,35 +162,18 @@ const Dropdown: React.FC<DropdownProps> = ({
     }
   };
 
+  const workspace = state.workspaces.find((w) => w.id === workspaceId);
+  if (!workspace) return null;
+
   return (
-    <AccordionItem
-      value={id}
-      className={listStyles}
-      onClick={(e) => {
-        e.stopPropagation();
-        navigatatePage(id, listType);
-      }}
-    >
-      <AccordionTrigger
-        id={listType}
-        className="hover:no-underline 
-          p-2 
-          dark:text-muted-foreground 
-          text-sm"
-        disabled={listType === "file"}
-      >
-        <div className={groupIdentifies}>
-          <div
-            className="flex 
-            gap-4 
-            items-center 
-            justify-center 
-            overflow-hidden"
-          >
+    <AccordionItem value={id}>
+      <AccordionTrigger id={listType} className="hover:no-underline">
+        <div className="flex gap-4 w-full justify-between overflow-hidden">
+          <div className="flex">
             <div className="relative">{iconId}</div>
             <input
               type="text"
-              value={listType === "folder" ? folderTitle : fileTitle}
+              value={title}
               className={clsx(
                 "outline-none overflow-hidden w-[140px] text-Neutrals/neutrals-7",
                 {
@@ -318,16 +183,15 @@ const Dropdown: React.FC<DropdownProps> = ({
               )}
               readOnly={!isEditing}
               onDoubleClick={handleDoubleClick}
-              onBlur={handleBlur}
               onChange={
                 listType === "folder" ? folderTitleChange : fileTitleChange
               }
             />
           </div>
-          <div className={hoverStyles}>
+          <div>
             <TooltipComponent message="Delete Folder">
               <Trash
-                onClick={moveToTrash}
+                onClick={() => moveFolderToTrash(id)}
                 size={15}
                 className="hover:dark:text-white dark:text-Neutrals/neutrals-7 transition-colors"
               />
@@ -344,21 +208,27 @@ const Dropdown: React.FC<DropdownProps> = ({
           </div>
         </div>
       </AccordionTrigger>
-      <AccordionContent>
-        {state.workspaces
-          .find((workspace) => workspace.id === workspaceId)
-          ?.folders.find((folder) => folder.id === id)
-          ?.files.filter((file) => !file.inTrash)
-          .map((file) => {
-            const customFileId = `${id}folder${file.id}`;
+      <AccordionContent className="ml-5 flex flex-col">
+        {workspace.folders
+          .find((f) => (f.id = id))
+          ?.files.map((file) => {
             return (
-              <Dropdown
+              <div
                 key={file.id}
-                title={file.title}
-                listType="file"
-                id={customFileId}
-                iconId={file.iconId}
-              />
+                onClick={() => navigatatePage(file.id)}
+                className="flex justify-between"
+              >
+                <span>
+                  {file.iconId} {file.title}
+                </span>
+                <TooltipComponent message="Delete Folder">
+                  <Trash
+                    onClick={() => moveFileToTrash(file.id)}
+                    size={15}
+                    className="hover:dark:text-white dark:text-Neutrals/neutrals-7 transition-colors"
+                  />
+                </TooltipComponent>
+              </div>
             );
           })}
       </AccordionContent>

@@ -1,82 +1,25 @@
 "use server";
-
+import { validate } from "uuid";
 import { files, folders, users, workspaces } from "@/migrations/schema";
-import db from "@/lib/supabase/db";
-import {
-  File,
-  Folder,
-  Subscription,
-  User,
-  workspace,
-} from "@/lib/supabase/supabase.types";
-import { and, eq, ilike, lt, notExists } from "drizzle-orm";
-import { collaborators } from "@/lib/supabase/schema";
-import { createClient } from "@supabase/supabase-js";
-import { OnboardingSchema } from "../validations/onboarding";
-import { z } from "zod";
-
-type OnboardingSchemaType = z.infer<typeof OnboardingSchema>;
+import db from "./db";
+import { File, Folder, Subscription, User, workspace } from "./supabase.types";
+import { and, eq, ilike, notExists } from "drizzle-orm";
+import { collaborators } from "./schema";
+import { revalidatePath } from "next/cache";
 
 export const createWorkspace = async (workspace: workspace) => {
   try {
-    const res = await db.insert(workspaces).values(workspace);
-    console.log("insert res", res);
-
+    const response = await db.insert(workspaces).values(workspace);
     return { data: null, error: null };
-  } catch (error: any) {
-    return { data: null, error: error.message || "Error" };
-  }
-};
-
-export const completeOnboarding = async (
-  userId: string,
-  {
-    displayName,
-    fullName,
-  }: Pick<OnboardingSchemaType, "displayName" | "fullName">,
-  avatarUrl?: string
-) => {
-  console.log(userId, displayName, fullName, avatarUrl);
-  try {
-    if (!userId) return { data: null, error: "No user Id provided" };
-    await db
-      .update(users)
-      .set({
-        displayName,
-        fullName,
-        avatarUrl: avatarUrl || null,
-      })
-      .where(eq(users.id, userId));
-    return { data: null, error: null };
-  } catch (error: any) {
-    return { data: null, error: error.message || "Error" };
+  } catch (error) {
+    console.log(error);
+    return { data: null, error: "Error" };
   }
 };
 
 export const deleteWorkspace = async (workspaceId: string) => {
   if (!workspaceId) return;
   await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
-};
-
-export const getWorkspaceByUserId = async (userId: string) => {
-  try {
-    if (!userId) return { data: null, error: "No user Id provided" };
-
-    console.log(userId);
-
-    const workspacecss = await db.query.workspaces.findMany();
-    console.log(workspacecss);
-
-    const workspace = await db.query.workspaces.findFirst({
-      where: (workspace, { eq }) => eq(workspace.workspaceOwner, userId),
-    });
-
-    if (!workspace) return { data: null, error: "No workspace found" };
-
-    return workspace;
-  } catch (error: any) {
-    return { data: null, error: error.message || "Error" };
-  }
 };
 
 export const getUserSubscriptionStatus = async (userId: string) => {
@@ -93,6 +36,13 @@ export const getUserSubscriptionStatus = async (userId: string) => {
 };
 
 export const getFolders = async (workspaceId: string) => {
+  const isValid = validate(workspaceId);
+  if (!isValid)
+    return {
+      data: null,
+      error: "Error",
+    };
+
   try {
     const results: Folder[] | [] = await db
       .select()
@@ -106,6 +56,13 @@ export const getFolders = async (workspaceId: string) => {
 };
 
 export const getWorkspaceDetails = async (workspaceId: string) => {
+  const isValid = validate(workspaceId);
+  if (!isValid)
+    return {
+      data: [],
+      error: "Error",
+    };
+
   try {
     const response = (await db
       .select()
@@ -120,6 +77,11 @@ export const getWorkspaceDetails = async (workspaceId: string) => {
 };
 
 export const getFileDetails = async (fileId: string) => {
+  const isValid = validate(fileId);
+  if (!isValid) {
+    data: [];
+    error: "Error";
+  }
   try {
     const response = (await db
       .select()
@@ -144,6 +106,12 @@ export const deleteFolder = async (folderId: string) => {
 };
 
 export const getFolderDetails = async (folderId: string) => {
+  const isValid = validate(folderId);
+  if (!isValid) {
+    data: [];
+    error: "Error";
+  }
+
   try {
     const response = (await db
       .select()
@@ -229,6 +197,8 @@ export const getSharedWorkspaces = async (userId: string) => {
 };
 
 export const getFiles = async (folderId: string) => {
+  const isValid = validate(folderId);
+  if (!isValid) return { data: null, error: "Error" };
   try {
     const results = (await db
       .select()
@@ -278,27 +248,17 @@ export const findUser = async (userId: string) => {
   const response = await db.query.users.findFirst({
     where: (u, { eq }) => eq(u.id, userId),
   });
-  console.log(response);
-
-  return response;
-};
-
-export const findUserByEmail = async (email: string) => {
-  const response = await db.query.users.findFirst({
-    where: (u, { eq }) => eq(u.email, email),
-  });
   return response;
 };
 
 export const getActiveProductsWithPrice = async () => {
   try {
     const res = await db.query.products.findMany({
-      where: (pro, { eq }) => eq(pro.active, true),
-
+      where: (pro, { eq }: { eq: any }) => eq(pro.active, true),
       with: {
         prices: {
-          // @ts-ignore
-          where: (price, { eq }) => eq(price.active, true),
+          where: (pri: { active: boolean }, { eq }: { eq: any }) =>
+            eq(pri.active, true),
         },
       },
     });
@@ -313,29 +273,6 @@ export const getActiveProductsWithPrice = async () => {
 export const createFolder = async (folder: Folder) => {
   try {
     const results = await db.insert(folders).values(folder);
-    return { data: null, error: null };
-  } catch (error) {
-    console.log(error);
-    return { data: null, error: "Error" };
-  }
-};
-
-export const updateDisplayName = async (
-  userId: string,
-  displayName: string
-) => {
-  try {
-    await db.update(users).set({ displayName }).where(eq(users.id, userId));
-    return { data: null, error: null };
-  } catch (error) {
-    console.log(error);
-    return { data: null, error: "Error" };
-  }
-};
-
-export const updateAvatarUrl = async (userId: string, avatarUrl: string) => {
-  try {
-    await db.update(users).set({ avatarUrl }).where(eq(users.id, userId));
     return { data: null, error: null };
   } catch (error) {
     console.log(error);

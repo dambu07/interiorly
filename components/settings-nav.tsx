@@ -7,6 +7,8 @@ import { SidebarNavItem } from "@/types";
 import { cn } from "@/lib/utils";
 import * as Icons from "@/components/icons";
 import { settingsConfig } from "@/config/settings";
+import LogoutButton from "./logout-button";
+import { Button } from "./ui/button";
 
 export function SettingsNav() {
   const items = settingsConfig.settingsNav;
@@ -37,6 +39,12 @@ export function SettingsNav() {
           )
         );
       })}
+      <LogoutButton>
+        <div className="flex items-center  justify-start w-full mx-2">
+          <Icons.IconClose className="mr-2 h-4 w-4" />
+          <span>Logout</span>
+        </div>
+      </LogoutButton>
     </nav>
   );
 }

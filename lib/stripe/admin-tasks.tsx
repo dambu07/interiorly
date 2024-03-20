@@ -27,7 +27,7 @@ export const upsertProductRecord = async (product: Stripe.Product) => {
       .values(productData)
       .onConflictDoUpdate({ target: products.id, set: productData });
   } catch (error) {
-    throw new Error();
+    throw new Error("Could not insert/update the product");
   }
   console.log("Product inserted/updates:", product.id);
 };

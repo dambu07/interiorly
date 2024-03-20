@@ -26,8 +26,14 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ products }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSupabaseUser();
 
+  console.log(user);
+  console.log(subscription);
+  console.log(products);
+
   const onClickContinue = async (price: Price) => {
     try {
+      console.log("clicked");
+
       setIsLoading(true);
       if (!user) {
         toast("Already on a paid plan");
@@ -95,8 +101,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ products }) => {
                   ))}
                 </div>
               ))
-            : ""}
-          {/* No Products Available */}
+            : "No Products Found!"}
         </DialogContent>
       )}
     </Dialog>

@@ -9,7 +9,7 @@ import { findUser } from "@/lib/supabase/queries";
 import { UserAvatarForm } from "@/components/dashboard/user-settings-avatar";
 
 export const metadata = {
-  title: "Settings",
+  title: "Settings - Account",
   description: "Manage account and website settings.",
 };
 

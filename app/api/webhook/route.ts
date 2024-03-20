@@ -20,6 +20,8 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(request: NextRequest) {
+  console.log("got called.");
+
   const body = await request.text();
   const sig = headers().get("Stripe-Signature");
 
@@ -35,14 +37,20 @@ export async function POST(request: NextRequest) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
   if (relevantEvents.has(event.type)) {
+    console.log("Received event:", event.type);
+
     try {
       switch (event.type) {
         case "product.created":
         case "product.updated":
+          console.log("FROM WEBHOOK🚀", event.data.object);
+
           await upsertProductRecord(event.data.object as Stripe.Product);
           break;
         case "price.created":
         case "price.updated":
+          console.log("FROM WEBHOOK🚀", event.data.object);
+
           await upsertPriceRecord(event.data.object as Stripe.Price);
         case "customer.subscription.created":
         case "customer.subscription.updated":

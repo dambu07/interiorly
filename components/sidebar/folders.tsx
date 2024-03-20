@@ -87,9 +87,10 @@ const FoldersDropdownList: React.FC<FoldersDropdownListProps> = ({
 
   return (
     <>
-      <div className=" ">
+      <div className="flex w-full justify-between group/title">
         <span
           className="
+          group
         font-bold 
         text-xs"
         >

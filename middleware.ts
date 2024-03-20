@@ -18,6 +18,8 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  console.log("Request path", requestPath);
+
   const isLoggedIn = user !== null;
   const isApiAuthRoute = requestPath.startsWith(apiAuthPrefix);
 
@@ -27,8 +29,9 @@ export async function middleware(req: NextRequest) {
 
   const isPublicRoute = publicRoutes.includes(requestPath);
   const isAuthRoute = authRoutes.includes(requestPath);
+  const isApiRoute = requestPath.startsWith("/api");
 
-  if (isApiAuthRoute) {
+  if (isApiAuthRoute || isApiRoute) {
     return null;
   }
 

@@ -38,6 +38,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import EmojiPicker from "@/components/emoji-picker";
 import BannerUpload from "@/components/banner-upload/banner-upload";
+import Breadcrumbs from "./breadcrumbs";
+import TrashIndicator from "./trash-indicator";
 
 interface QuillEditorProps {
   dirDetails: File | Folder | workspace;
@@ -47,7 +49,6 @@ interface QuillEditorProps {
 var TOOLBAR_OPTIONS = [
   ["bold", "italic", "underline", "strike"], // toggled buttons
   ["blockquote", "code-block"],
-
   [{ header: 1 }, { header: 2 }], // custom button values
   [{ list: "ordered" }, { list: "bullet" }],
   [{ script: "sub" }, { script: "super" }], // superscript/subscript
@@ -117,44 +118,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
     } as workspace | Folder | File;
   }, [state, workspaceId, folderId]);
 
-  const breadCrumbs = useMemo(() => {
-    if (!pathname || !state.workspaces || !workspaceId) return;
-    const segments = pathname
-      .split("/")
-      .filter((val) => val !== "dashboard" && val);
-    const workspaceDetails = state.workspaces.find(
-      (workspace) => workspace.id === workspaceId
-    );
-    const workspaceBreadCrumb = workspaceDetails
-      ? `${workspaceDetails.iconId} ${workspaceDetails.title}`
-      : "";
-    if (segments.length === 1) {
-      return workspaceBreadCrumb;
-    }
-
-    const folderSegment = segments[1];
-    const folderDetails = workspaceDetails?.folders.find(
-      (folder) => folder.id === folderSegment
-    );
-    const folderBreadCrumb = folderDetails
-      ? `/ ${folderDetails.iconId} ${folderDetails.title}`
-      : "";
-
-    if (segments.length === 2) {
-      return `${workspaceBreadCrumb} ${folderBreadCrumb}`;
-    }
-
-    const fileSegment = segments[2];
-    const fileDetails = folderDetails?.files.find(
-      (file) => file.id === fileSegment
-    );
-    const fileBreadCrumb = fileDetails
-      ? `/ ${fileDetails.iconId} ${fileDetails.title}`
-      : "";
-
-    return `${workspaceBreadCrumb} ${folderBreadCrumb} ${fileBreadCrumb}`;
-  }, [state, pathname, workspaceId]);
-
   //
   const wrapperRef = useCallback(async (wrapper: any) => {
     if (typeof window !== "undefined") {
@@ -177,46 +140,6 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
       setQuill(q);
     }
   }, []);
-
-  const restoreFileHandler = async () => {
-    if (dirType === "file") {
-      if (!folderId || !workspaceId) return;
-      dispatch({
-        type: "UPDATE_FILE",
-        payload: { file: { inTrash: "" }, fileId, folderId, workspaceId },
-      });
-      await updateFile({ inTrash: "" }, fileId);
-    }
-    if (dirType === "folder") {
-      if (!workspaceId) return;
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: { folder: { inTrash: "" }, folderId: fileId, workspaceId },
-      });
-      await updateFolder({ inTrash: "" }, fileId);
-    }
-  };
-
-  const deleteFileHandler = async () => {
-    if (dirType === "file") {
-      if (!folderId || !workspaceId) return;
-      dispatch({
-        type: "DELETE_FILE",
-        payload: { fileId, folderId, workspaceId },
-      });
-      await deleteFile(fileId);
-      router.replace(`/dashboard/${workspaceId}`);
-    }
-    if (dirType === "folder") {
-      if (!workspaceId) return;
-      dispatch({
-        type: "DELETE_FOLDER",
-        payload: { folderId: fileId, workspaceId },
-      });
-      await deleteFolder(fileId);
-      router.replace(`/dashboard/${workspaceId}`);
-    }
-  };
 
   const iconOnChange = async (icon: string) => {
     if (!fileId) return;
@@ -514,62 +437,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
 
   return (
     <>
+      <TrashIndicator />
       <div className="relative">
-        {details.inTrash && (
-          <article
-            className="py-2 
-          z-40 
-          bg-[#EB5757] 
-          flex  
-          md:flex-row 
-          flex-col 
-          justify-center 
-          items-center 
-          gap-4 
-          flex-wrap"
-          >
-            <div
-              className="flex 
-            flex-col 
-            md:flex-row 
-            gap-2 
-            justify-center 
-            items-center"
-            >
-              <span className="text-white">
-                This {dirType} is in the trash.
-              </span>
-              <Button
-                size="sm"
-                variant="outline"
-                className="bg-transparent
-                border-white
-                text-white
-                hover:bg-white
-                hover:text-[#EB5757]
-                "
-                onClick={restoreFileHandler}
-              >
-                Restore
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                className="bg-transparent
-                border-white
-                text-white
-                hover:bg-white
-                hover:text-[#EB5757]
-                "
-                onClick={deleteFileHandler}
-              >
-                Delete
-              </Button>
-            </div>
-            <span className="text-sm text-white">{details.inTrash}</span>
-          </article>
-        )}
         <div
           className="flex 
         flex-col-reverse 
@@ -580,7 +449,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         sm:p-2 
         p-8"
         >
-          <div>{breadCrumbs}</div>
+          <Breadcrumbs />
           <div className="flex items-center gap-4">
             <div className="flex items-center justify-center h-10">
               {collaborators?.map((collaborator) => (

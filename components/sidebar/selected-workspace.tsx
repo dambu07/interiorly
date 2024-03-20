@@ -13,10 +13,10 @@ interface SelectedWorkspaceProps {
 }
 
 const SelectedWorkspace = ({ defaultValue }: SelectedWorkspaceProps) => {
-  const { state } = useAppState();
+  const { state, workspaceId } = useAppState();
 
   const workspace = state.workspaces.find(
-    (workspace) => workspace.id === defaultValue.id
+    (workspace) => workspace.id === workspaceId
   );
 
   if (!workspace) return null;

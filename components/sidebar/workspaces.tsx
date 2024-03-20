@@ -10,6 +10,7 @@ import { useAppState } from "@/lib/provider/state-provider";
 import Link from "next/link";
 import CustomDialogTrigger from "@/components/custom-dialog-trigger";
 import WorkspaceCreator from "@/components/workspace-creator";
+import { ModeToggle } from "../mode-toggle";
 
 interface SidebarWorkspacesProps {
   privateWorkspaces: workspace[] | [];
@@ -58,7 +59,7 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
   ];
 
   return (
-    <div className="flex flex-col items-center h-full bg-secondary text-secondary-foreground">
+    <div className="flex flex-col items-center h-full bg-secondary/10 text-secondary-foreground">
       <Avatar className="w-16 h-16 p-3 cursor-pointer rounded-full">
         <AvatarFallback className="bg-background">
           <IconMessage className="w-6 h-6" />
@@ -86,6 +87,7 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
           </AvatarFallback>
         </Avatar>
       </CustomDialogTrigger>
+      <ModeToggle />
     </div>
   );
 };

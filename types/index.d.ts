@@ -57,3 +57,8 @@ export type NextApiResponseServerIo = NextApiResponse & {
     };
   };
 };
+
+export type BreadCrumb = {
+  title: string;
+  href: string;
+};

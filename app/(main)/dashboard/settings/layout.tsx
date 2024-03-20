@@ -1,5 +1,6 @@
 import { SettingsNav } from "@/components/settings-nav";
-import db from "@/lib/supabase/db";
+import { SubscriptionModalProvider } from "@/lib/provider/subscription-modal-provider";
+import { getActiveProductsWithPrice } from "@/lib/supabase/queries";
 import React from "react";
 
 interface SettingsLayoutProps {
@@ -9,6 +10,8 @@ interface SettingsLayoutProps {
 export default async function SettingsLayout({
   children,
 }: SettingsLayoutProps) {
+  const { data: products } = await getActiveProductsWithPrice();
+
   return (
     <div className="flex min-h-screen flex-col space-y-6">
       <div className="container grid flex-1 gap-12 md:grid-cols-[200px_1fr] my-20">
@@ -16,7 +19,9 @@ export default async function SettingsLayout({
           <SettingsNav />
         </aside>
         <main className="flex w-full flex-1 flex-col overflow-hidden">
-          {children}
+          <SubscriptionModalProvider products={products}>
+            {children}
+          </SubscriptionModalProvider>
         </main>
       </div>
     </div>
