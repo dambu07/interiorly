@@ -59,18 +59,22 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
   ];
 
   return (
-    <div className="flex flex-col items-center h-full bg-secondary/10 text-secondary-foreground">
-      <Avatar className="w-16 h-16 p-3 cursor-pointer rounded-full">
-        <AvatarFallback className="bg-background">
+    <div className="flex flex-col items-center h-full bg-secondary-foreground/5 text-secondary-foreground">
+      <Avatar className="w-16 h-16 p-2 cursor-pointer">
+        <AvatarFallback className="bg-primary/10">
           <IconMessage className="w-6 h-6" />
         </AvatarFallback>
       </Avatar>
-      <Separator className="w-8 h-0.5" />
+      <Separator className="w-8 h-0.5 my-2" />
       {workspaces.map((workspace) => (
         <Link key={workspace.id} href={`/dashboard/${workspace.id}`}>
-          <Avatar className="w-16 h-16 p-3 cursor-pointer rounded-full">
-            <AvatarImage src={workspace.logoUrl ?? ""} alt={workspace.title} />
-            <AvatarFallback className="bg-background">
+          <Avatar className="w-16 h-16 p-2 cursor-pointer">
+            <AvatarImage
+              src={workspace.logoUrl ?? ""}
+              alt={workspace.title}
+              className="rounded-full border "
+            />
+            <AvatarFallback className="bg-primary/10">
               {getInitials(workspace.title)}
             </AvatarFallback>
           </Avatar>
@@ -81,13 +85,12 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
         content={<WorkspaceCreator />}
         description="Workspaces give you the power to collaborate with others. You can change your workspace privacy settings after creating the workspace too."
       >
-        <Avatar className="w-16 h-16 p-3 cursor-pointer rounded-full">
-          <AvatarFallback className="bg-background">
+        <Avatar className="w-16 h-16 p-2 cursor-pointer rounded-full">
+          <AvatarFallback className="bg-primary/10">
             <IconPlus className="w-3 h-3" />
           </AvatarFallback>
         </Avatar>
       </CustomDialogTrigger>
-      <ModeToggle />
     </div>
   );
 };

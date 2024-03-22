@@ -16,6 +16,8 @@ import OnboardingStepProfile from "@/components/onboarding/steps/avatar";
 import OnboardingStepWorkspaceSetup from "@/components/onboarding/steps/workspace-setup";
 import { actionCompleteOnboarding } from "@/lib/server-actions/onboarding";
 import { ModeToggle } from "@/components/mode-toggle";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 interface OnboardingProps {
   user: User;
@@ -34,16 +36,13 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
   const { workspaceType, avatar } = form.watch();
 
   const onboardingComplete = async (data: z.infer<typeof OnboardingSchema>) => {
-    console.log(data);
-
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
-    console.log(formData);
 
     const response = await actionCompleteOnboarding(formData);
-    console.log(response);
+    console.log(response, form.formState.isSubmitSuccessful);
   };
 
   const validateFormFields = async (
@@ -107,6 +106,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
     {
       component: <OnboardingStepFinish form={form} />,
       submitButtonText: "Go to Dashboard",
+      onSubmit: () => revalidatePath("/dashboard"),
     },
   ];
 
@@ -135,7 +135,6 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
           />
         </form>
       </Form>
-      <ModeToggle />
     </div>
   );
 }

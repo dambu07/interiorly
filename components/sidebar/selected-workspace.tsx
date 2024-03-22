@@ -7,6 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import React, { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 interface SelectedWorkspaceProps {
   defaultValue: workspace;
@@ -27,22 +29,21 @@ const SelectedWorkspace = ({ defaultValue }: SelectedWorkspaceProps) => {
       onClick={() => {
         redirect(`/dashboard/${workspace.id}`);
       }}
-      className="flex items-center justify-center py-5 gap-3 font-semibold w-full "
+      className="flex items-center text-center justify-center py-7 gap-1 font-semibold w-full space-x-3"
     >
-      {workspace.logoUrl && (
-        <Image
-          src={workspace.logoUrl}
-          alt="workspace logo"
-          width={32}
-          height={32}
-          objectFit="cover"
-          className="rounded-full"
+      <Avatar>
+        <AvatarImage
+          src={workspace.logoUrl ?? ""}
+          alt={workspace.title}
+          className="rounded-full border "
         />
-      )}
+        <AvatarFallback className="bg-primary/10">
+          {getInitials(workspace.title)}
+        </AvatarFallback>
+      </Avatar>
       <div className="flex flex-col">
         <p
           className="text-lg 
-        w-[170px] 
         overflow-hidden 
         overflow-ellipsis 
         whitespace-nowrap"

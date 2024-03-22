@@ -3,11 +3,12 @@
 import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { DashboardShell } from "@/components/dashboard/shell";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useSubscriptionModal } from "@/lib/provider/subscription-modal-provider";
 import { useSupabaseUser } from "@/lib/provider/supabase-user-provider";
+import Link from "next/link";
 
 export default function BillingPage() {
   const [loadingPortal, setLoadingPortal] = useState<boolean>(false);
@@ -61,20 +62,12 @@ export default function BillingPage() {
           </div>
         ) : (
           <div>
-            <Button
-              type="button"
-              size="sm"
-              variant={"secondary"}
-              className="text-sm"
-              onClick={() => {
-                console.log("clicked");
-                setOpen(true);
-                console.log(open);
-              }}
+            <Link
+              href={"https://buy.stripe.com/test_9AQbJt7fufVqamQdQR"}
+              className={buttonVariants({ variant: "outline" })}
             >
-              Start Plan
-            </Button>
-            Open: {open ? "true" : "false"}
+              Upgrade to Pro Plan
+            </Link>
           </div>
         )}
       </div>

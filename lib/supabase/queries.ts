@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 export const createWorkspace = async (workspace: workspace) => {
   try {
     const response = await db.insert(workspaces).values(workspace);
-    return { data: null, error: null };
+    return { data: response, error: null };
   } catch (error) {
     console.log(error);
     return { data: null, error: "Error" };
@@ -33,6 +33,21 @@ export const getUserSubscriptionStatus = async (userId: string) => {
     console.log(error);
     return { data: null, error: `Error` };
   }
+};
+
+export const updateAvatarUrl = async (userId: string, avatarUrl: string) => {
+  if (!avatarUrl) return;
+  await db.update(users).set({ avatarUrl }).where(eq(users.id, userId));
+  return { data: null, error: null };
+};
+
+export const updateDisplayName = async (
+  userId: string,
+  displayName: string
+) => {
+  if (!displayName) return;
+  await db.update(users).set({ displayName }).where(eq(users.id, userId));
+  return { data: null, error: null };
 };
 
 export const getFolders = async (workspaceId: string) => {

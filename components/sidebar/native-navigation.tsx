@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 import Settings from "../settings/settings";
 import { IconAccuracy, IconDashboard, IconSettings, IconTrash } from "../icons";
 import Trash from "@/components/trash/trash";
+import { cn } from "@/lib/utils";
 
 interface NativeNavigationProps {
   myWorkspaceId: string;
@@ -15,8 +16,8 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({
   className,
 }) => {
   return (
-    <nav className={twMerge("my-2", className)}>
-      <ul className="flex flex-col gap-2 my-3">
+    <nav className={cn("my-2", className)}>
+      <ul className="flex flex-col space-y-3 my-5">
         <li>
           <Link
             className="flex items-center gap-2 text-secondary-foreground font-semibold"

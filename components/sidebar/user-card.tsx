@@ -9,6 +9,7 @@ import LogoutButton from "@/components/logout-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { IconSettings, IconUser } from "@/components/icons";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 
 interface UserCardProps {
   subscription: Subscription | null;
@@ -26,45 +27,35 @@ const UserCard: React.FC<UserCardProps> = async ({ subscription }) => {
   });
   let avatarPath;
   if (!response) return;
-  if (!response.avatarUrl) avatarPath = "";
-  else {
-    avatarPath = supabase.storage
-      .from("avatars")
-      .getPublicUrl(response.avatarUrl)?.data.publicUrl;
-  }
-  const profile = {
-    ...response,
-    avatarUrl: avatarPath,
-  };
+  const avatarUrl = response.avatarUrl as string;
 
   return (
     <article
-      className="hidden sm:flex justify-between items-center w-full bg-secondary px-3 py-3 bottom-0
+      className="hidden sm:flex justify-between items-center w-full bg-secondary-foreground/5 px-3 py-3 bottom-0
   "
     >
       <aside className="flex justify-center items-center gap-2">
         <Avatar>
-          <AvatarImage src={profile.avatarUrl} />
+          <AvatarImage src={avatarUrl} />
           <AvatarFallback>
             <IconUser />
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <span className="text-muted-foreground">
-            {/* {subscription?.status === "active" ? "Pro Plan" : "Free Plan"} */}
-            {profile.displayName}
+            {subscription?.status === "active" ? (
+              <Badge>Pro Plan</Badge>
+            ) : (
+              <Badge>Free Plan</Badge>
+            )}
           </span>
-          <small
-            className="w-full
-          overflow-hidden 
-          overflow-ellipsis
-          "
-          >
-            {profile.email}
+          <small className="w-full overflow-hidden overflow-ellipsis">
+            {response.displayName || response.email}
           </small>
         </div>
       </aside>
       <div className="flex items-center justify-center">
+        <ModeToggle ghost={true} />
         <Link href="/dashboard/settings">
           <IconSettings className="mr-3" />
         </Link>

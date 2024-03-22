@@ -146,15 +146,15 @@ function OnboardingStepWorkspaceSetup({
                             })
                           )}
                           alt="Avatar"
-                          objectFit="contain"
+                          objectFit="cover"
                           layout="fill"
                           className="rounded-full"
                         />
                       </>
                     ) : workspaceType === "team" ? (
-                      <IconUsers className="w-10 h-10 text-secondary-foreground" />
+                      <IconUsers className="w-10 h-10 text-primary-foreground" />
                     ) : (
-                      <IconUser className="w-10 h-10 text-secondary-foreground" />
+                      <IconUser className="w-10 h-10 text-primary-foreground" />
                     )}
                     <div className="hidden group-hover:flex absolute top-0 left-0 w-full h-full bg-black/30 dark:bg-black/50 items-center justify-center rounded-full cursor-pointer">
                       <IconPen className="w-7 h-7 text-white" />

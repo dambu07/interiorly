@@ -10,13 +10,14 @@ import {
 import clsx from "clsx";
 import { createFile, updateFile, updateFolder } from "@/lib/supabase/queries";
 import { PlusIcon, Trash } from "lucide-react";
-import { File } from "@/lib/supabase/supabase.types";
+import { File, Folder, workspace } from "@/lib/supabase/supabase.types";
 import { v4 } from "uuid";
 import { useSupabaseUser } from "@/lib/provider/supabase-user-provider";
 import { useAppState } from "@/lib/provider/state-provider";
 import EmojiPicker from "@/components/emoji-picker";
 import TooltipComponent from "@/components/tooltip-component";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface DropdownProps {
   title: string;
@@ -38,17 +39,10 @@ const Dropdown: React.FC<DropdownProps> = ({
 }) => {
   const { workspaceId, state, dispatch } = useAppState();
   const { user } = useSupabaseUser();
-  const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
+  const [isEditing, setIsEditing] = useState<string>("");
 
-  const navigatatePage = (targetId: string) => {
-    console.log(id);
-
-    router.push(`/dashboard/${workspaceId}/${id}/${targetId}`);
-  };
-
-  const handleDoubleClick = () => {
-    setIsEditing(true);
+  const handleDoubleClick = (id: string) => {
+    setIsEditing(id);
   };
 
   const folderTitleChange = (e: any) => {
@@ -166,29 +160,26 @@ const Dropdown: React.FC<DropdownProps> = ({
   if (!workspace) return null;
 
   return (
-    <AccordionItem value={id}>
+    <AccordionItem value={id} className="border-none">
       <AccordionTrigger id={listType} className="hover:no-underline">
-        <div className="flex gap-4 w-full justify-between overflow-hidden">
+        <div className="flex gap-4 w-full justify-start hover:justify-between overflow-hidden group/folder">
           <div className="flex">
             <div className="relative">{iconId}</div>
             <input
               type="text"
               value={title}
-              className={clsx(
+              className={cn(
                 "outline-none overflow-hidden w-[140px] text-Neutrals/neutrals-7",
-                {
-                  "bg-muted cursor-text": isEditing,
-                  "bg-transparent cursor-pointer": !isEditing,
-                }
+                isEditing === id
+                  ? "bg-muted cursor-text"
+                  : "bg-transparent cursor-pointer"
               )}
-              readOnly={!isEditing}
-              onDoubleClick={handleDoubleClick}
-              onChange={
-                listType === "folder" ? folderTitleChange : fileTitleChange
-              }
+              readOnly={!(isEditing === id)}
+              onDoubleClick={() => handleDoubleClick(id)}
+              onChange={folderTitleChange}
             />
           </div>
-          <div>
+          <div className="hidden group-hover/folder:flex">
             <TooltipComponent message="Delete Folder">
               <Trash
                 onClick={() => moveFolderToTrash(id)}
@@ -196,7 +187,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 className="hover:dark:text-white dark:text-Neutrals/neutrals-7 transition-colors"
               />
             </TooltipComponent>
-            {listType === "folder" && !isEditing && (
+            {!(isEditing === id) && (
               <TooltipComponent message="Add File">
                 <PlusIcon
                   onClick={addNewFile}
@@ -208,26 +199,40 @@ const Dropdown: React.FC<DropdownProps> = ({
           </div>
         </div>
       </AccordionTrigger>
-      <AccordionContent className="ml-5 flex flex-col">
+      <AccordionContent className="ml-5 flex flex-col cursor-pointer">
         {workspace.folders
-          .find((f) => (f.id = id))
-          ?.files.map((file) => {
+          .find((f) => f.id === id)
+          ?.files.map((file: File) => {
             return (
               <div
+                className="flex hover:justify-between w-full group/file"
                 key={file.id}
-                onClick={() => navigatatePage(file.id)}
-                className="flex justify-between"
               >
-                <span>
-                  {file.iconId} {file.title}
-                </span>
-                <TooltipComponent message="Delete Folder">
-                  <Trash
-                    onClick={() => moveFileToTrash(file.id)}
-                    size={15}
-                    className="hover:dark:text-white dark:text-Neutrals/neutrals-7 transition-colors"
+                <div className="flex">
+                  <div className="relative">{iconId}</div>
+                  <input
+                    type="text"
+                    value={file.title}
+                    className={cn(
+                      "outline-none overflow-hidden w-[140px] text-Neutrals/neutrals-7",
+                      isEditing === file.id
+                        ? "bg-muted cursor-text"
+                        : "bg-transparent cursor-pointer"
+                    )}
+                    readOnly={!(isEditing === file.id)}
+                    onDoubleClick={() => handleDoubleClick(file.id)}
+                    onChange={fileTitleChange}
                   />
-                </TooltipComponent>
+                </div>
+                <div className="hidden group-hover/file:flex justify-end">
+                  <TooltipComponent message="Delete Folder">
+                    <Trash
+                      onClick={() => moveFileToTrash(file.id)}
+                      size={15}
+                      className="hover:dark:text-white dark:text-Neutrals/neutrals-7 transition-colors"
+                    />
+                  </TooltipComponent>
+                </div>
               </div>
             );
           })}

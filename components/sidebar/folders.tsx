@@ -40,6 +40,7 @@ const FoldersDropdownList: React.FC<FoldersDropdownListProps> = ({
             files:
               state.workspaces
                 .find((workspace) => workspace.id === workspaceId)
+                //@ts-ignore
                 ?.folders.find((f) => f.id === folder.id)?.files || [],
           })),
         },
@@ -87,24 +88,12 @@ const FoldersDropdownList: React.FC<FoldersDropdownListProps> = ({
 
   return (
     <>
-      <div className="flex w-full justify-between group/title">
-        <span
-          className="
-          group
-        font-bold 
-        text-xs"
-        >
-          FOLDERS
-        </span>
+      <div className="flex w-full justify-between items-center group/title">
+        <span className="font-bold text-sm">FOLDERS</span>
         <TooltipComponent message="Create Folder">
           <PlusIcon
             onClick={addFolderHandler}
-            size={16}
-            className="group-hover/title:inline-block
-            hidden 
-            cursor-pointer
-            hover:dark:text-white
-          "
+            className="w-5 h-5 group-hover/title:flex hidden cursor-pointer text-secondary-foreground"
           />
         </TooltipComponent>
       </div>

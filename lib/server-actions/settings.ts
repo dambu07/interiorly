@@ -36,7 +36,11 @@ export async function actionUpdateAvatar(data: FormData) {
 
   if (!publicUrl || !user?.id) return { error: "No public url or user id" };
 
-  await updateAvatarUrl(user.id, publicUrl);
+  try {
+    await updateAvatarUrl(user.id, publicUrl);
+  } catch (err) {
+    console.log(err);
+  }
 
   return response;
 }

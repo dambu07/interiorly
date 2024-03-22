@@ -36,6 +36,8 @@ const Sidebar: React.FC<SidebarProps> = async ({ params, className }) => {
   const { data: subscriptionData, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
 
+  const subcriptionSatus = "active";
+
   const { data: workspaceFolderData, error: foldersError } = await getFolders(
     params.workspaceId
   );

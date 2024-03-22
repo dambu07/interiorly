@@ -40,6 +40,9 @@ import EmojiPicker from "@/components/emoji-picker";
 import BannerUpload from "@/components/banner-upload/banner-upload";
 import Breadcrumbs from "./breadcrumbs";
 import TrashIndicator from "./trash-indicator";
+import { Separator } from "../ui/separator";
+import { IconClose } from "../icons";
+import { getInitials } from "@/lib/utils";
 
 interface QuillEditorProps {
   dirDetails: File | Folder | workspace;
@@ -456,20 +459,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
                 <TooltipProvider key={collaborator.id}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Avatar
-                        className="
-                    -ml-3 
-                    bg-background 
-                    border-2 
-                    flex 
-                    items-center 
-                    justify-center 
-                    border-white 
-                    h-8 
-                    w-8 
-                    rounded-full
-                    "
-                      >
+                      <Avatar className="-ml-3 bg-primary/10 border-2 flex items-center justify-centerborder-white h-8 w-8 rounded-full">
                         <AvatarImage
                           src={
                             collaborator.avatarUrl ? collaborator.avatarUrl : ""
@@ -477,7 +467,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
                           className="rounded-full"
                         />
                         <AvatarFallback>
-                          {collaborator.email.substring(0, 2).toUpperCase()}
+                          {getInitials(collaborator.email)}
                         </AvatarFallback>
                       </Avatar>
                     </TooltipTrigger>
@@ -516,89 +506,46 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
       {details.bannerUrl && (
         <div className="relative w-full h-[200px]">
           <Image
-            src={
-              supabase.storage
-                .from("file-banners")
-                .getPublicUrl(details.bannerUrl).data.publicUrl
-            }
+            key={details.bannerUrl}
+            src={details.bannerUrl}
             fill
-            className="w-full md:h-48
-            h-20
-            object-cover"
+            className="w-full md:h-48 h-20 object-cover"
             alt="Banner Image"
           />
         </div>
       )}
-      <div
-        className="flex 
-        justify-center
-        items-center
-        flex-col
-        mt-2
-        relative
-      "
-      >
-        <div
-          className="w-full 
-        self-center 
-        max-w-[800px] 
-        flex 
-        flex-col
-         px-7 
-         lg:my-8"
-        >
-          <div className="text-[80px]">
+      <div className="flex flex-col container justify-center items-center">
+        <div className="w-full self-center max-w-3xl flex flex-col my-8">
+          <div className="relative text-6xl h-20 w-20 hover:bg-muted rounded-xl flex items-center justify-center">
             <EmojiPicker getValue={iconOnChange}>
-              <div
-                className="w-[100px]
-                cursor-pointer
-                transition-colors
-                h-[100px]
-                flex
-                items-center
-                justify-center
-                hover:bg-muted
-                rounded-xl"
-              >
+              <div className="w-full h-full flex items-center justify-center">
                 {details.iconId}
               </div>
             </EmojiPicker>
           </div>
-          <div className="flex ">
+          <div className="flex items-center space-x-3">
             <BannerUpload
-              id={fileId}
+              id={details.id}
               dirType={dirType}
-              className="mt-2
-              text-sm
-              text-muted-foreground
-              p-2
-              hover:text-card-foreground
-              transition-all
-              rounded-md"
+              className="text-sm text-muted-foreground hover:text-card-foreground transition-all"
             >
               {details.bannerUrl ? "Update Banner" : "Add Banner"}
             </BannerUpload>
             {details.bannerUrl && (
-              <Button
-                disabled={deletingBanner}
-                onClick={deleteBanner}
-                variant="ghost"
-                className="gap-2 hover:bg-background
-                flex
-                item-center
-                justify-center
-                mt-2
-                text-sm
-                text-muted-foreground
-                w-36
-                p-2
-                rounded-md"
-              >
-                <XCircleIcon size={16} />
-                <span className="whitespace-nowrap font-normal">
-                  Remove Banner
-                </span>
-              </Button>
+              <>
+                <Separator orientation="vertical" className="h-3" />
+                <Button
+                  disabled={deletingBanner}
+                  onClick={deleteBanner}
+                  variant="ghost"
+                  className="hover:bg-background flex items-center space-x-1.5 text-sm text-muted-foreground p-0"
+                >
+                  <span className="whitespace-nowrap font-normal">
+                    Remove Banner
+                  </span>
+                  <XCircleIcon className="w-3.5 h-3.5" />
+                </Button>
+              </>
             )}
           </div>
           <span

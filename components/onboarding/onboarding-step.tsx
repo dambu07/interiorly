@@ -10,6 +10,7 @@ import { IconChevronLeft, IconSpinner } from "../icons";
 import { Separator } from "../ui/separator";
 import { OnboardingSchema } from "@/lib/validations/onboarding";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 interface OnboardingStepProps {
   form: UseFormReturn<z.infer<typeof OnboardingSchema>>;
@@ -35,7 +36,6 @@ export function OnboardingStep({
   component,
   submitButtonText,
   onSubmit,
-  onComplete,
   setCurrentPage,
   skippable,
   submitButtonDisabled,
@@ -47,9 +47,9 @@ export function OnboardingStep({
   return (
     <div className="flex flex-col w-full h-full">
       <div className="h-1/3 flex flex-col justify-end">
-        {/* <div className="text-2xl font-bold text-center text-secondary-foreground">
+        <div className="text-2xl font-bold text-center text-secondary-foreground">
           Interiorly AI
-        </div> */}
+        </div>
         <div className="relative mx-auto mt-16 mb-10 w-3/4">
           <Progress
             value={(stepNumber / (stepCount - 1)) * 100}
@@ -115,16 +115,15 @@ export function OnboardingStep({
               onClick={
                 stepNumber < stepCount - 1
                   ? onSubmit || (() => setCurrentPage(stepNumber + 1))
-                  : () => null
+                  : () => redirect("/dashboard")
               }
               type={stepNumber < stepCount - 1 ? "button" : "submit"}
               variant={"default"}
               className="w-3/4 text-primary-foreground"
               disabled={
-                // isLoading ||
-                // (isSubmitted && isSubmittedSuccessfully) ||
-                // submitButtonDisabled
-                false
+                isLoading ||
+                (isSubmitted && !isSubmittedSuccessfully) ||
+                submitButtonDisabled
               }
             >
               {isLoading && (

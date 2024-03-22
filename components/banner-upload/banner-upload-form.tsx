@@ -44,10 +44,15 @@ const BannerUploadForm: React.FC<BannerUploadFormProps> = ({ dirType, id }) => {
 
       const uploadBanner = async () => {
         const { data, error } = await supabase.storage
-          .from("file-banners")
-          .upload(`banner-${id}`, file, { cacheControl: "5", upsert: true });
+          .from("workspace-banners")
+          .upload(`workspace-banner-${id}`, file, {
+            cacheControl: "5",
+            upsert: true,
+          });
         if (error) throw new Error();
-        filePath = data.path;
+        filePath = supabase.storage
+          .from("workspace-banners")
+          .getPublicUrl(data.path).data.publicUrl;
       };
       if (dirType === "file") {
         if (!workspaceId || !folderId) return;

@@ -3,7 +3,11 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { OnboardingSchema } from "../validations/onboarding";
-import { completeOnboarding, createWorkspace } from "../supabase/queries";
+import {
+  createWorkspace,
+  updateAvatarUrl,
+  updateDisplayName,
+} from "../supabase/queries";
 import { workspace } from "../supabase/supabase.types";
 import { v4 } from "uuid";
 
@@ -38,8 +42,6 @@ export async function actionCompleteOnboarding(formData: FormData) {
     }
   }
 
-  console.log("checkpoint 1");
-
   if (workspaceBanner) {
     try {
       const fileUUID = v4();
@@ -60,7 +62,7 @@ export async function actionCompleteOnboarding(formData: FormData) {
     }
   }
 
-  console.log("checkpoint 2");
+  let workspaceData;
 
   try {
     const workspaceUUID = v4();
@@ -82,8 +84,12 @@ export async function actionCompleteOnboarding(formData: FormData) {
       workspaceOwner: user.id,
     };
 
-    const { data: workspaceData, error: workspaceError } =
+    const { data: _workspaceData, error: workspaceError } =
       await createWorkspace(workspace);
+
+    console.log(_workspaceData, workspaceError);
+
+    workspaceData = _workspaceData;
 
     if (workspaceError) throw new Error(workspaceError);
   } catch (error) {
@@ -106,14 +112,19 @@ export async function actionCompleteOnboarding(formData: FormData) {
     avatarPath = avatarPathURL;
   }
 
+  if (avatarPath) {
+    try {
+      await updateAvatarUrl(user.id, avatarPath);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   try {
-    const { error: onboardingError } = await completeOnboarding(
-      user.id,
-      validatedData
-      // avatarPath
-    );
-    if (onboardingError) throw new Error(onboardingError.message);
+    await updateDisplayName(user.id, validatedData.displayName);
   } catch (error) {
     console.log(error);
   }
+
+  return { data: workspaceData };
 }

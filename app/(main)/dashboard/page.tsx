@@ -1,33 +1,31 @@
 import React from "react";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import { findUser, getUserSubscriptionStatus } from "@/lib/supabase/queries";
-import db from "@/lib/supabase/db";
 import Onboarding from "@/components/onboarding/onboarding";
 import { notFound, redirect } from "next/navigation";
+import { useAppState } from "@/lib/provider/state-provider";
+import { useSupabaseUser } from "@/lib/provider/supabase-user-provider";
+import { workspace } from "@/lib/supabase/supabase.types";
+import db from "@/lib/supabase/db";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import { getUserSubscriptionStatus } from "@/lib/supabase/queries";
 
 async function DashboardPage() {
   const supabase = createServerComponentClient({ cookies });
 
   const {
-    data: { user: authUser },
-    error,
+    data: { user },
   } = await supabase.auth.getUser();
-  if (error || !authUser) return notFound();
 
-  const user = await findUser(authUser.id);
   if (!user) return notFound();
 
   const workspace = await db.query.workspaces.findFirst({
-    where: (workspace, { eq }) => eq(workspace.workspaceOwner, authUser.id),
+    //@ts-ignore
+    where: (workspace: workspace, { eq }: { eq: any }) =>
+      eq(workspace.workspaceOwner, user.id),
   });
-
-  console.log(workspace, workspace?.workspaceOwner, authUser.id);
 
   const { data: subscription, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
-
-  if (subscriptionError) return;
 
   if (!workspace)
     return (

@@ -73,7 +73,7 @@ function OnboardingStepProfile({ form }: OnboardingStepProfileProps) {
                       })
                     )}
                     alt="Avatar"
-                    objectFit="contain"
+                    objectFit="cover"
                     layout="fill"
                     className="rounded-full"
                   />
