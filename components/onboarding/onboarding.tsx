@@ -51,7 +51,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
   ) =>
     (
       await Promise.all(
-        fields.map((field) => form.trigger(field, { shouldFocus: true }))
+        fields.map((field) => form.trigger(field, { shouldFocus: true })),
       )
     ).every((fieldResult) => fieldResult);
 
@@ -75,7 +75,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
                   ? displayName.split(" ")[0]
                   : displayName
                 : "Someone"
-            }'s Workspace 🚀`
+            }'s Workspace 🚀`,
           );
           if (isValid) {
             setCurrentPage(currentPage + 1);
@@ -91,18 +91,18 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
       submitButtonDisabled: !avatar,
       skipable: true,
     },
-    {
-      title: "How are you planning to use Interiorly?",
-      description: "We'll streamline your setup experience accordingly. ",
-      component: <OnboardingStepCollaboration form={form} />,
-    },
-    {
-      title: "Set up your workspace",
-      description: `Create your first workspace ${
-        workspaceType === "team" ? "and invite your team" : ""
-      } to get started.`,
-      component: <OnboardingStepWorkspaceSetup form={form} />,
-    },
+    // {
+    //   title: "How are you planning to use Interiorly?",
+    //   description: "We'll streamline your setup experience accordingly. ",
+    //   component: <OnboardingStepCollaboration form={form} />,
+    // },
+    // {
+    //   title: "Set up your workspace",
+    //   description: `Create your first workspace ${
+    //     workspaceType === "team" ? "and invite your team" : ""
+    //   } to get started.`,
+    //   component: <OnboardingStepWorkspaceSetup form={form} />,
+    // },
     {
       component: <OnboardingStepFinish form={form} />,
       submitButtonText: "Go to Dashboard",
@@ -113,7 +113,7 @@ export default function Onboarding({ user, subscription }: OnboardingProps) {
   const currentStep = onboardingSteps[currentPage];
 
   return (
-    <div className="w-full h-full flex items-center justify-center max-w-3xl container">
+    <div className="flex justify-center items-center w-full max-w-3xl h-full container">
       <Form {...form}>
         <form
           className="relative w-full h-full"

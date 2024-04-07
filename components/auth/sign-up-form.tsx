@@ -6,17 +6,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn, evaluatePasswordStrength } from "@/lib/utils";
-import {
-  IconAccuracy,
-  IconDiscord,
-  IconEyeClosed,
-  IconEyeOpen,
-  IconGitHub,
-  IconGoogle,
-  IconHelp,
-  IconSpinner,
-} from "@/components/icons";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { IconEyeClosed, IconEyeOpen, IconSpinner } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import {
   Form,
@@ -43,31 +34,20 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { Fahkwang } from "next/font/google";
 import { AuthError, AuthResponse, OAuthResponse } from "@supabase/supabase-js";
 import { PasswordStrengthEvaluationResult } from "@/types";
+import OAuthSignIn from "./oauth-sign-in";
+import { useAuth } from "@/lib/provider/auth-provider";
 
 interface AuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function SignUpForm({ className, ...props }: AuthFormProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
+  const { isLoading, handleRegisterSubmit } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [confirmationPasswordVisible, setConfirmationPasswordVisible] =
     useState<boolean>(false);
   const [passwordStrengthIndicator, setPasswordStrengthIndicator] = useState(
-    {} as PasswordStrengthEvaluationResult
+    {} as PasswordStrengthEvaluationResult,
   );
-
-  async function onSubmit(data: z.infer<typeof UserRegisterSchema>) {
-    setIsLoading(true);
-    const response = await actionRegisterUser(data);
-    handleAuth(response as AuthResponse);
-  }
-
-  async function onOAuthSubmit(provider: "github" | "google" | "discord") {
-    setIsLoading(true);
-    const response = await actionLoginUserOAuth({ provider });
-    handleAuth(response as OAuthResponse);
-  }
 
   const form = useForm<z.infer<typeof UserRegisterSchema>>({
     resolver: zodResolver(UserRegisterSchema),
@@ -75,28 +55,6 @@ export function SignUpForm({ className, ...props }: AuthFormProps) {
       email: "",
     },
   });
-
-  function isOAuthLink(
-    response: AuthResponse | OAuthResponse
-  ): response is OAuthResponse {
-    return (response as OAuthResponse).data.url !== undefined;
-  }
-
-  const handleAuth = (response: AuthResponse | OAuthResponse) => {
-    if (isOAuthLink(response)) {
-      router.push(response.data.url as string);
-    } else if (response instanceof AuthError) {
-      toast("An error occurred", {
-        description: response.message || "Please try again later.",
-      });
-      setIsLoading(false);
-    } else {
-      toast("Registerd Successfully", {
-        description: "You will be redirected shortly.",
-      });
-      router.replace(DEFAULT_LOGIN_REDIRECT);
-    }
-  };
 
   const handlePasswordStrength = (e: { target: { value: string } }) => {
     const password = e.target.value;
@@ -109,7 +67,7 @@ export function SignUpForm({ className, ...props }: AuthFormProps) {
       {" "}
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(handleRegisterSubmit)}
           className="flex-col space-y-8 align-middle"
         >
           <FormField
@@ -142,7 +100,7 @@ export function SignUpForm({ className, ...props }: AuthFormProps) {
                       <TooltipTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-xl p-1 h-6 bg-transparent"
+                          className="top-1/2 right-2 absolute bg-transparent p-1 rounded-xl h-6 transform -translate-y-1/2"
                           onClick={(e) => {
                             e.preventDefault();
                             setPasswordVisible(!passwordVisible);
@@ -184,11 +142,11 @@ export function SignUpForm({ className, ...props }: AuthFormProps) {
                       <TooltipTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-xl p-1 h-6 bg-transparent"
+                          className="top-1/2 right-2 absolute bg-transparent p-1 rounded-xl h-6 transform -translate-y-1/2"
                           onClick={(e) => {
                             e.preventDefault();
                             setConfirmationPasswordVisible(
-                              !confirmationPasswordVisible
+                              !confirmationPasswordVisible,
                             );
                           }}
                         >
@@ -217,72 +175,13 @@ export function SignUpForm({ className, ...props }: AuthFormProps) {
             criteria={passwordStrengthIndicator.criteria}
             strengthPercentage={passwordStrengthIndicator.strengthPercentage}
           />
-          <Button type="submit" className="w-full m-auto border">
+          <Button type="submit" className="m-auto border w-full">
             Sign Up with Email
             {isLoading && <IconSpinner className="ml-2 animate-spin" />}
           </Button>
         </form>
       </Form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="px-2 bg-background text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <div className="flex w-full gap-4">
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          className="w-full"
-          onClick={() => {
-            onOAuthSubmit("github");
-          }}
-        >
-          {isLoading ? (
-            <IconSpinner className="mr-2 animate-spin" />
-          ) : (
-            <IconGitHub className="mr-2" />
-          )}{" "}
-          GitHub
-        </Button>
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          className="w-full"
-          onClick={() => {
-            onOAuthSubmit("google");
-          }}
-        >
-          {isLoading ? (
-            <IconSpinner className="mr-2 animate-spin" />
-          ) : (
-            <IconGoogle className="mr-2" />
-          )}{" "}
-          Google
-        </Button>
-        <Button
-          variant="outline"
-          type="button"
-          disabled={isLoading}
-          className="w-full"
-          onClick={() => {
-            onOAuthSubmit("discord");
-          }}
-        >
-          {isLoading ? (
-            <IconSpinner className="mr-2 animate-spin" />
-          ) : (
-            <IconDiscord className="mr-2" />
-          )}{" "}
-          Discord
-        </Button>
-      </div>
+      <OAuthSignIn />
     </div>
   );
 }

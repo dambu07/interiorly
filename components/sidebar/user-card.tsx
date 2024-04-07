@@ -1,40 +1,26 @@
 import React from "react";
-import { Subscription } from "@/lib/supabase/supabase.types";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import db from "@/lib/supabase/db";
+import { Subscription, User } from "@/lib/supabase/supabase.types";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { LogOut } from "lucide-react";
-import LogoutButton from "@/components/logout-button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { IconSettings, IconUser } from "@/components/icons";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
+import { findUser } from "@/lib/supabase/queries";
 
 interface UserCardProps {
   subscription: Subscription | null;
+  userId: string;
 }
 
-const UserCard: React.FC<UserCardProps> = async ({ subscription }) => {
-  const supabase = createServerComponentClient({ cookies });
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return;
-  const response = await db.query.users.findFirst({
-    where: (u, { eq }) => eq(u.id, user.id),
-  });
-  let avatarPath;
-  if (!response) return;
-  const avatarUrl = response.avatarUrl as string;
+const UserCard: React.FC<UserCardProps> = async ({ subscription, userId }) => {
+  const user = await findUser(userId);
+  console.log(user, userId);
+  if (!user) return null;
+  const avatarUrl = user.avatarUrl as string;
 
   return (
-    <article
-      className="hidden sm:flex justify-between items-center w-full bg-secondary-foreground/5 px-3 py-3 bottom-0
-  "
-    >
-      <aside className="flex justify-center items-center gap-2">
+    <article className="bottom-0 hidden w-full items-center justify-between bg-secondary/20 px-3 py-3 sm:flex">
+      <aside className="flex items-center justify-center gap-2">
         <Avatar>
           <AvatarImage src={avatarUrl} />
           <AvatarFallback>
@@ -50,7 +36,7 @@ const UserCard: React.FC<UserCardProps> = async ({ subscription }) => {
             )}
           </span>
           <small className="w-full overflow-hidden overflow-ellipsis">
-            {response.displayName || response.email}
+            {user.displayName || user.email}
           </small>
         </div>
       </aside>

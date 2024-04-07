@@ -1,10 +1,10 @@
 "use client";
 
 import { AuthUser } from "@supabase/supabase-js";
-import { Subscription } from "../supabase/supabase.types";
+import { Subscription, User } from "../supabase/supabase.types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { getUserSubscriptionStatus } from "../supabase/queries";
+import { findUser, getUserSubscriptionStatus } from "../supabase/queries";
 import { toast } from "sonner";
 
 type SupabaseUserContextType = {
@@ -38,10 +38,8 @@ export const SupabaseUserProvider: React.FC<SupabaseUserProviderProps> = ({
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      console.log(user);
 
       if (user) {
-        console.log(user);
         setUser(user);
         const { data, error } = await getUserSubscriptionStatus(user.id);
         if (data) setSubscription(data);

@@ -27,24 +27,17 @@ async function DashboardPage() {
   const { data: subscription, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
 
-  if (!workspace)
-    return (
-      <div
-        className="bg-background
-        h-screen
-        w-screen
-        flex
-        flex-col
-        gap-5
-        justify-center
-        items-center
-  "
-      >
-        <Onboarding user={user} subscription={subscription} />
-      </div>
-    );
+  // if (!workspace)
+  //   return (
+  //     <div
+  //       className="flex flex-col justify-center items-center gap-5 bg-background w-screen h-screen // // // // // // // //"
+  //     >
+  //       <Onboarding user={user} subscription={subscription} />
+  //     </div>
+  //   );
 
-  return redirect(`/dashboard/${workspace.id}`);
+  // return redirect(`/dashboard/${workspace.id}`);
+  return <div>Dashboard Props</div>;
 }
 
 export default DashboardPage;

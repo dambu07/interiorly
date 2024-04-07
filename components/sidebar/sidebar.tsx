@@ -1,5 +1,5 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import React, { useState } from "react";
+import React from "react";
 import { cookies } from "next/headers";
 import {
   getCollaboratingWorkspaces,
@@ -36,13 +36,13 @@ const Sidebar: React.FC<SidebarProps> = async ({ params, className }) => {
   const { data: subscriptionData, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
 
-  const subcriptionSatus = "active";
-
   const { data: workspaceFolderData, error: foldersError } = await getFolders(
-    params.workspaceId
+    params.workspaceId,
   );
 
-  if (subscriptionError || foldersError) return redirect("/dashboard");
+  console.log(subscriptionError, foldersError);
+
+  if (subscriptionError) return redirect("/dashboard");
   const [privateWorkspaces, collaboratingWorkspaces, sharedWorkspaces] =
     await Promise.all([
       getPrivateWorkspaces(user.id),
@@ -51,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = async ({ params, className }) => {
     ]);
 
   return (
-    <aside className="hidden sm:flex max-w-sm w-full">
+    <aside className="hidden w-full max-w-sm sm:flex">
       <SidebarWorkspaces
         privateWorkspaces={privateWorkspaces}
         collaboratingWorkspaces={collaboratingWorkspaces}
@@ -60,29 +60,12 @@ const Sidebar: React.FC<SidebarProps> = async ({ params, className }) => {
       />
       <div
         className={cn(
-          "hidden sm:flex sm:flex-col w-full shrink-0 md:gap-4 !justify-between flex-1",
-          className
+          "hidden w-full flex-1 shrink-0 !justify-between bg-secondary/25 sm:flex sm:flex-col md:gap-4",
+          className,
         )}
       >
-        <div className="flex flex-col mx-4">
-          <SelectedWorkspace defaultValue={privateWorkspaces[0]} />
-          <PlanUsage
-            foldersLength={workspaceFolderData?.length || 0}
-            subscription={subscriptionData}
-          />
-          <NativeNavigation myWorkspaceId={params.workspaceId} />
-          <ScrollArea
-            className="overflow-hidden relative
-          h-full 
-        "
-          >
-            <FoldersDropdownList
-              workspaceFolders={workspaceFolderData || []}
-              workspaceId={params.workspaceId}
-            />
-          </ScrollArea>
-        </div>
-        <UserCard subscription={subscriptionData} />
+        <SelectedWorkspace />
+        <UserCard subscription={subscriptionData} userId={user.id} />
       </div>
     </aside>
   );

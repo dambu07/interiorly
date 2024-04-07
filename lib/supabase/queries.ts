@@ -266,6 +266,15 @@ export const findUser = async (userId: string) => {
   return response;
 };
 
+export const findUserByEmail = async (email: string) => {
+  const response = await db.query.users.findFirst({
+    where: (u, { ilike }) => ilike(u.email, email),
+  });
+  console.log(response);
+
+  return response;
+};
+
 export const getActiveProductsWithPrice = async () => {
   try {
     const res = await db.query.products.findMany({

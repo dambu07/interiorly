@@ -9,7 +9,7 @@ export const publicRoutes = ["/"];
  * These routes will redirect to /dashboard if the user is already logged in.
  * @type {string[]}
  */
-export const authRoutes = ["/sign-in", "/sign-up", "/reset-password"];
+export const authRoutes = ["/sign-in", "/sign-up"];
 
 /**
  * Prefix for API routes used for authentication.

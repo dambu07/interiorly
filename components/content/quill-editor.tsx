@@ -33,7 +33,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { XCircleIcon } from "lucide-react";
 import { useAppState } from "@/lib/provider/state-provider";
 import { useSupabaseUser } from "@/lib/provider/supabase-user-provider";
-import { useSocket } from "@/lib/provider/socket-provider";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import EmojiPicker from "@/components/emoji-picker";
@@ -78,7 +77,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const { user } = useSupabaseUser();
   const router = useRouter();
-  const { socket, isConnected } = useSocket();
+  const socket = null;
   const pathname = usePathname();
   const [quill, setQuill] = useState<any>(null);
   const [collaborators, setCollaborators] = useState<

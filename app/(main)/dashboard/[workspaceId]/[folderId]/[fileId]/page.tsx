@@ -10,7 +10,7 @@ const File = async ({ params }: { params: { fileId: string } }) => {
   if (error || !data.length) redirect("/dashboard");
 
   return (
-    <div className="relative ">
+    <div className="relative bg-secondary/10">
       <QuillEditor
         dirType="file"
         fileId={params.fileId}

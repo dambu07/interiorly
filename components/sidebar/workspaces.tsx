@@ -25,7 +25,7 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
   sharedWorkspaces,
   defaultValue,
 }) => {
-  const { state, dispatch } = useAppState();
+  const { state, dispatch, workspaceId } = useAppState();
   const [selectedWorkspace, setSelectedWorkspace] = useState<
     workspace | undefined
   >(defaultValue);
@@ -47,7 +47,7 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
 
   useEffect(() => {
     const findSelectedWorkspace = state.workspaces.find(
-      (workspace) => workspace.id === defaultValue?.id
+      (workspace) => workspace.id === defaultValue?.id,
     );
     if (findSelectedWorkspace) setSelectedWorkspace(findSelectedWorkspace);
   }, [state, defaultValue]);
@@ -59,20 +59,20 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
   ];
 
   return (
-    <div className="flex flex-col items-center h-full bg-secondary-foreground/5 text-secondary-foreground">
-      <Avatar className="w-16 h-16 p-2 cursor-pointer">
+    <div className="flex h-full flex-col items-center bg-secondary/10 text-secondary-foreground">
+      <Avatar className="h-16 w-16 cursor-pointer p-2">
         <AvatarFallback className="bg-primary/10">
-          <IconMessage className="w-6 h-6" />
+          <IconMessage className="h-6 w-6" />
         </AvatarFallback>
       </Avatar>
-      <Separator className="w-8 h-0.5 my-2" />
+      <Separator className="my-2 h-0.5 w-8" />
       {workspaces.map((workspace) => (
         <Link key={workspace.id} href={`/dashboard/${workspace.id}`}>
-          <Avatar className="w-16 h-16 p-2 cursor-pointer">
+          <Avatar className="h-16 w-16 cursor-pointer p-2">
             <AvatarImage
               src={workspace.logoUrl ?? ""}
               alt={workspace.title}
-              className="rounded-full border "
+              className="rounded-full border"
             />
             <AvatarFallback className="bg-primary/10">
               {getInitials(workspace.title)}
@@ -85,9 +85,9 @@ const SidebarWorkspaces: React.FC<SidebarWorkspacesProps> = ({
         content={<WorkspaceCreator />}
         description="Workspaces give you the power to collaborate with others. You can change your workspace privacy settings after creating the workspace too."
       >
-        <Avatar className="w-16 h-16 p-2 cursor-pointer rounded-full">
+        <Avatar className="h-16 w-16 cursor-pointer rounded-full p-2">
           <AvatarFallback className="bg-primary/10">
-            <IconPlus className="w-3 h-3" />
+            <IconPlus className="h-3 w-3" />
           </AvatarFallback>
         </Avatar>
       </CustomDialogTrigger>

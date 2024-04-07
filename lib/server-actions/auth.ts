@@ -9,9 +9,7 @@ import {
   UserOAuthSchema,
   UserAuthSchemaMagicLink,
 } from "@/lib/validations/auth";
-import { findUserByEmail, updateDisplayName } from "@/lib/supabase/queries";
-import { BASEURL, DEFAULT_LOGIN_REDIRECT } from "@/routes";
-import { AuthTokenResponse } from "@supabase/supabase-js";
+import { findUserByEmail } from "@/lib/supabase/queries";
 
 export async function actionLoginUserMagicLink({
   email,
@@ -26,11 +24,12 @@ export async function actionLoginUserMagicLink({
     };
   }
 
+  console.log("Signing in", process.env.NEXT_PUBLIC_SITE_URL);
+
   const response = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: false,
-      emailRedirectTo: `${BASEURL}/sign-in?provider=Email&callbackUrl=${DEFAULT_LOGIN_REDIRECT}`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
     },
   });
 
@@ -52,27 +51,31 @@ export async function actionLoginUserMagicLink({
   };
 }
 
+export async function actionSendPasswordResetEmail(email: string) {
+  const supabase = createRouteHandlerClient({ cookies });
+  const response = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+  });
+
+  console.log(response);
+
+  return response;
+}
+
 export async function actionLogoutUser() {
   const supabase = createRouteHandlerClient({ cookies });
   const response = await supabase.auth.signOut();
 
-  return {
-    error: {
-      message: response.error?.message,
-    },
-  };
+  return response;
 }
 
-export async function actionExchangeCodeForSession(code: string) {
+export async function actionExchangeCodeForSession<AuthTokenResponse>(
+  code: string,
+) {
   const supabase = createRouteHandlerClient({ cookies });
   const response = await supabase.auth.exchangeCodeForSession(code);
 
-  return {
-    data: response.data,
-    error: {
-      message: response.error?.message,
-    },
-  } as AuthTokenResponse;
+  return response;
 }
 
 export async function actionLoginUserOAuth({
@@ -85,18 +88,11 @@ export async function actionLoginUserOAuth({
   const response = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${BASEURL}/sign-in?provider=${provider}&callbackUrl=${encodeURIComponent(
-        callbackUrl || DEFAULT_LOGIN_REDIRECT
-      )}`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
     },
   });
 
-  return {
-    data: response.data,
-    error: {
-      message: response.error?.message,
-    },
-  };
+  return response;
 }
 
 export async function actionLoginUser({
@@ -109,12 +105,7 @@ export async function actionLoginUser({
     password,
   });
 
-  return {
-    data: response.data,
-    error: {
-      message: response.error?.message,
-    },
-  };
+  return response;
 }
 
 export async function actionRegisterUser({
@@ -135,14 +126,9 @@ export async function actionRegisterUser({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
     },
   });
 
-  return {
-    data: response.data,
-    error: {
-      message: response.error?.message,
-    },
-  };
+  return response;
 }

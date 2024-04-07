@@ -29,9 +29,8 @@ export async function middleware(req: NextRequest) {
 
   const isPublicRoute = publicRoutes.includes(requestPath);
   const isAuthRoute = authRoutes.includes(requestPath);
-  const isApiRoute = requestPath.startsWith("/api");
 
-  if (isApiAuthRoute || isApiRoute) {
+  if (isApiAuthRoute) {
     return null;
   }
 
@@ -48,8 +47,10 @@ export async function middleware(req: NextRequest) {
       callbackUrl += nextUrl.search;
     }
 
+    console.log("Redirecting to sign-in", callbackUrl);
+
     return Response.redirect(
-      new URL(`/sign-in?callbackUrl=${callbackUrl}`, nextUrl)
+      new URL(`/sign-in?callbackUrl=${callbackUrl}`, nextUrl),
     );
   }
 
