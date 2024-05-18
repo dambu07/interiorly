@@ -1,11 +1,10 @@
 "use server";
-import { validate } from "uuid";
-import { files, folders, users, workspaces } from "@/migrations/schema";
-import db from "./db";
-import { File, Folder, Subscription, User, workspace } from "./supabase.types";
+import { files, folders, users, workspaces } from "@/lib/migrations/schema";
 import { and, eq, ilike, notExists } from "drizzle-orm";
+import { validate } from "uuid";
+import db from "./db";
 import { collaborators } from "./schema";
-import { revalidatePath } from "next/cache";
+import { File, Folder, Subscription, User, workspace } from "./supabase.types";
 
 export const createWorkspace = async (workspace: workspace) => {
   try {

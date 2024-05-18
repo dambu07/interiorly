@@ -1,19 +1,19 @@
+import {
+    prices,
+    products,
+    subscriptionStatus,
+    users,
+} from "@/lib/migrations/schema";
 import { relations, sql } from "drizzle-orm";
 import {
-  boolean,
-  integer,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
+    boolean,
+    integer,
+    jsonb,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
 } from "drizzle-orm/pg-core";
-import {
-  prices,
-  products,
-  subscriptionStatus,
-  users,
-} from "@/migrations/schema";
 
 export const workspaces = pgTable("workspaces", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),

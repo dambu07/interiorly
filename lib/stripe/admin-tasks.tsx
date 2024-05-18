@@ -1,16 +1,16 @@
-import Stripe from "stripe";
-import { Price, Product, Subscription } from "@/lib/supabase/supabase.types";
-import db from "@/lib/supabase/db";
 import {
-  customers,
-  prices,
-  products,
-  subscriptions,
-  users,
-} from "@/migrations/schema";
+    customers,
+    prices,
+    products,
+    subscriptions,
+    users,
+} from "@/lib/migrations/schema";
 import { stripe } from "@/lib/stripe";
-import { eq } from "drizzle-orm";
+import db from "@/lib/supabase/db";
+import { Price, Product, Subscription } from "@/lib/supabase/supabase.types";
 import { toDateTime } from "@/lib/utils";
+import { eq } from "drizzle-orm";
+import Stripe from "stripe";
 
 export const upsertProductRecord = async (product: Stripe.Product) => {
   const productData: Product = {
